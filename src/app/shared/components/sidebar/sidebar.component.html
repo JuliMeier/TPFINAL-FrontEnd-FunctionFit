@@ -1,0 +1,31 @@
+<aside class="bg-gray-850 w-64 min-h-screen p-4 flex flex-col">
+    <a routerLink="/" class="flex items-center gap-2 text-xl font-bold text-white mb-6 hover:text-blue-300 transition">
+        <i class="fas fa-fire"></i>
+        {{name()}}
+    </a>
+    <nav>
+        <ul class="space-y-2">
+            <li>
+                <a routerLink="/page-1" routerLinkActive="bg-gray-700"
+                    class="flex items-center gap-2 p-2 rounded hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-home"></i>
+                    Page-1
+                </a>
+            </li>
+            <li>
+                <a routerLink="/page-2" routerLinkActive="bg-gray-700"
+                    class="flex items-center gap-2 p-2 rounded hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-user"></i>
+                    Page-2
+                </a>
+            </li>
+            <li>
+                <a routerLink="/page-3" routerLinkActive="bg-gray-700"
+                    class="flex items-center gap-2 p-2 rounded hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-cog"></i>
+                    Page-3
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>

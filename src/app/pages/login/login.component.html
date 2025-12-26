@@ -1,0 +1,48 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">🔐 Iniciar Sesión</h2>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Email</label>
+                <input formControlName="email" type="email"
+                    class="mt-1 block w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    [class.border-red-500]="isInvalid('email')" />
+                @if (isInvalid('email')) {
+                <p class="text-red-500 text-sm mt-1">{{ getError('email') }}</p>
+                }
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Contraseña</label>
+                <input formControlName="password" type="password"
+                    class="mt-1 block w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    [class.border-red-500]="isInvalid('password')" />
+                @if (isInvalid('password')) {
+                <p class="text-red-500 text-sm mt-1">{{ getError('password') }}</p>
+                }
+            </div>
+
+            <button type="submit" [disabled]="loginForm.invalid || isSubmitting()"
+                class="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition">
+                {{ isSubmitting() ? 'Iniciando...' : 'Entrar' }}
+            </button>
+        </form>
+        <p class="mt-4 text-sm text-gray-600 text-center">
+            🧪 <strong>Modo prueba:</strong> Usa cualquier email de
+            <a href="https://jsonplaceholder.typicode.com/users" target="_blank" class="text-blue-600 hover:underline">
+                JSONPlaceholder
+            </a>
+            y una contraseña de ≥6 caracteres.
+        </p>
+
+        <div class="mt-2 text-xs text-gray-500 space-y-1">
+            <p class="text-center">
+                Ejemplos:
+                <code>Sincere@april.biz</code>,
+                <code>Shanna@melissa.tv</code>,
+                <code>Nathan@yesenia.net</code>
+            </p>
+        </div>
+    </div>
+</div>

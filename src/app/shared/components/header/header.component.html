@@ -1,0 +1,14 @@
+<header class="bg-gray-800 p-4 flex items-center justify-between shadow">
+    <h1 class="text-white text-xl font-semibold">{{ pageTitle() }}</h1>
+
+    <div class="flex items-center gap-4">
+        @if (user(); as u) {
+        <span class="text-white">Hola, {{ u.name }}</span>
+        <button (click)="logout()" class="...">
+            <i class="fas fa-sign-out-alt mr-1"></i> Cerrar sesión
+        </button>
+        } @else {
+        <span class="text-white">Invitado</span>
+        }
+    </div>
+</header>
