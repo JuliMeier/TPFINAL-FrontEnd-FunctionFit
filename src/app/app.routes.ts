@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ServicesService } from './services/services.service';
 import { roleGuard } from './core/guards/role.guard';
 
+
 const authGuard = () => {
     const servicesService = inject(ServicesService);
     const router = inject(Router);
@@ -54,6 +55,11 @@ export const routes: Routes = [
             },
             { path: 'home', redirectTo: '', pathMatch: 'full' }
         ]
+    },
+    {
+        path: 'register',
+        loadComponent: () => import('./pages/register/register.component'),
+        canActivate: [redirectIfLoggedIn]
     },
     { path: '**', redirectTo: '' }
 ];
