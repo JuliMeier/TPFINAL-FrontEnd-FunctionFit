@@ -17,6 +17,6 @@ export class Header {
 
   logout(): void {
     this.servicesService.logout();
-    this.router.navigate(['/']);
+    this.router.navigate(['/home']);
   }
 }

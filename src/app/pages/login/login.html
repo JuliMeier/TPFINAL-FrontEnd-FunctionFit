@@ -1,7 +1,7 @@
 <div class="min-h-screen flex items-center justify-center bg-black bg-opacity-75">
     <button type="button" class="absolute top-0 right-0 m-4 text-yellow-500 hover:text-yellow-400 transition"
         aria-label="Volver al inicio"
-        routerLink="/"
+        routerLink="/home"
         title="Volver al inicio">
         <i class="fas fa-home text-2xl"></i>
     </button>
@@ -30,18 +30,6 @@
                         @if (isInvalid('password')) {
                         <p class="text-red-500 text-sm mt-1">El campo contraseña es obligatorio</p>
                         }
-                    </div>
-
-                    <div class="mt-4 text-xs text-gray-300 bg-gray-800/50 p-3 rounded border border-gray-700">
-                        <p class="font-medium text-yellow-400 mb-1">🧪 Usuarios de prueba</p>
-                        <ul class="list-disc list-inside space-y-0.5 text-left">
-                            <li><code class="text-green-300">cliente@demo.com</code></li>
-                            <li><code class="text-green-300">admin@demo.com</code></li>
-                            <li><code class="text-green-300">superadmin@demo.com</code></li>
-                        </ul>
-                        <p class="mt-1 text-center">
-                            🔑 Contraseña para todos: <code class="bg-gray-700 px-1.5 py-0.5 rounded">1234</code>
-                        </p>
                     </div>
 
                     <button type="submit" [disabled]="loginForm.invalid || isSubmitting()"

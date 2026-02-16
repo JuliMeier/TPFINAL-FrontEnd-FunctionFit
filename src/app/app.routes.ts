@@ -27,7 +27,7 @@ const redirectIfLoggedIn = () => {
 
 export const routes: Routes = [
     {
-        path: '',
+        path: 'home',
         loadComponent: () => import('./pages/home/home'),
         canActivate: [redirectIfLoggedIn]
     },
@@ -117,7 +117,7 @@ export const routes: Routes = [
             }
         ]
     },
-    { path: '**', redirectTo: '' }
+    { path: '**', redirectTo: 'home' }
 ];
 
 
