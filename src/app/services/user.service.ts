@@ -1,5 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { User, UserProfileResponse } from '../shared/interfaces';
 import { environment } from '../../environments/environment.development';
@@ -8,20 +8,17 @@ import { environment } from '../../environments/environment.development';
   providedIn: 'root',
 })
 export class UserService {
- 
-  private API_URL = environment.apiUrl 
+
+  private API_URL = environment.apiUrl
   private usersSignal = signal<User[]>([]);
   public users = this.usersSignal.asReadonly();
 
-  private http= inject(HttpClient);
-  
+  private http = inject(HttpClient);
+
 
   async loadUsers(): Promise<User[]> {
     try {
-      const token = localStorage.getItem('authToken');
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-      const data = await firstValueFrom(this.http.get<User[]>(`${this.API_URL}/User`, { headers }));
+      const data = await firstValueFrom(this.http.get<User[]>(`${this.API_URL}/User`));
       this.usersSignal.set(data);
       return data;
     } catch (error) {
@@ -30,14 +27,10 @@ export class UserService {
     }
   }
 
-    async getMe(): Promise<UserProfileResponse> {
+  async getMe(): Promise<UserProfileResponse> {
     try {
-      const token = localStorage.getItem('authToken');
-      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-      // Ahora el HttpClient sabe exactamente qué forma tiene la respuesta
       return await firstValueFrom(
-        this.http.get<UserProfileResponse>(`${this.API_URL}/User/me`, { headers })
+        this.http.get<UserProfileResponse>(`${this.API_URL}/User/me`)
       );
     } catch (error) {
       console.error('Error al obtener el perfil:', error);

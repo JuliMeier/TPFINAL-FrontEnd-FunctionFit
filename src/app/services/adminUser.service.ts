@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ApiResponse, CreateUserByAdminRequest, UpdateUserByAdminRequest } from '../shared/interfaces';
 import { environment } from '../../environments/environment.development';
@@ -9,27 +9,20 @@ export class AdminUserService {
   private API_URL = environment.apiUrl + '/admin/user';
   private http = inject(HttpClient);
 
-  private getHeaders() {
-    const token = localStorage.getItem('authToken');
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-  }
-
-   async createUser(data: CreateUserByAdminRequest): Promise<ApiResponse> {
+  async createUser(data: CreateUserByAdminRequest): Promise<ApiResponse> {
     try {
       return await firstValueFrom(
-        this.http.post<ApiResponse>(`${this.API_URL}`, data, { headers: this.getHeaders() })
+        this.http.post<ApiResponse>(`${this.API_URL}`, data)
       );
     } catch (error: any) {
       throw error.error?.message || 'Error al crear usuario';
     }
   }
 
-   async updateUser(id: number, data: UpdateUserByAdminRequest): Promise<ApiResponse> {
+  async updateUser(id: number, data: UpdateUserByAdminRequest): Promise<ApiResponse> {
     try {
       return await firstValueFrom(
-        this.http.put<ApiResponse>(`${this.API_URL}/${id}`, data, { headers: this.getHeaders() })
+        this.http.put<ApiResponse>(`${this.API_URL}/${id}`, data)
       );
     } catch (error: any) {
       throw error.error?.message || 'Error al actualizar usuario';
@@ -39,7 +32,7 @@ export class AdminUserService {
   async deleteUser(id: number): Promise<ApiResponse> {
     try {
       return await firstValueFrom(
-        this.http.delete<ApiResponse>(`${this.API_URL}/${id}`, { headers: this.getHeaders() })
+        this.http.delete<ApiResponse>(`${this.API_URL}/${id}`)
       );
     } catch (error: any) {
       throw error.error?.message || 'Error al eliminar usuario';
@@ -49,7 +42,7 @@ export class AdminUserService {
   async getAllUsers(): Promise<any[]> {
     try {
       return await firstValueFrom(
-        this.http.get<any[]>(`${this.API_URL}`, { headers: this.getHeaders() })
+        this.http.get<any[]>(`${this.API_URL}`)
       );
     } catch (error: any) {
       throw error.error?.message || 'Error al obtener usuarios';
@@ -57,10 +50,8 @@ export class AdminUserService {
   }
 
   async getActivitySummary(): Promise<any> {
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return firstValueFrom(
-      this.http.get(`${this.API_URL}/activity-summary`, { headers })
+      this.http.get(`${this.API_URL}/activity-summary`)
     );
   }
 

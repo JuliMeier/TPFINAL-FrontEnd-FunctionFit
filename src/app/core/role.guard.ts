@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { ServicesService } from '../../services/services.service';
+import { ServicesService } from '../services/services.service';
 
 export type Role = 'Socio' | 'Administrador' | 'SuperAdministrador';
 

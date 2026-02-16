@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { CreateGymClassRequest, EnrollmentResponse, GymClass, Historical, Payment, User } from '../shared/interfaces';
 import { environment } from '../../environments/environment.development';
@@ -93,165 +93,81 @@ export class ServicesService {
     localStorage.removeItem('authToken');
   }
 
-  getAuthToken(): string | null {
-    return localStorage.getItem('authToken');
-  }
-
-  getAuthHeaders(): HttpHeaders {
-    const token = this.getAuthToken();
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-  }
-
   async getGymClasses(): Promise<GymClass[]> {
-    const token = this.getAuthToken();
-    if (!token) throw new Error('No auth token');
-
     const url = `${this.API_URL}/GymClass`;
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
     const response = await firstValueFrom(
-      this.http.get<GymClass[]>(url, { headers })
+      this.http.get<GymClass[]>(url)
     );
     return response;
   }
 
   async reserveClass(classId: number): Promise<EnrollmentResponse> {
-    const token = this.getAuthToken();
     const user = this._currentUser();
-    if (!token || !user) throw new Error('Usuario no autenticado');
-
+    if (!user) throw new Error('Usuario no autenticado');
     const url = `${this.API_URL}/Enrollment/enroll`;
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
     const body = { userId: Number(user.id), gymClassId: classId };
-
-    return firstValueFrom(this.http.post<EnrollmentResponse>(url, body, { headers }));
+    return firstValueFrom(this.http.post<EnrollmentResponse>(url, body));
   }
 
   async cancelReservation(classId: number): Promise<EnrollmentResponse> {
-    const token = this.getAuthToken();
     const user = this._currentUser();
-    if (!token || !user) throw new Error('Usuario no autenticado');
-
+    if (!user) throw new Error('Usuario no autenticado');
     const url = `${this.API_URL}/Enrollment/unenroll`;
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
     const body = { userId: Number(user.id), gymClassId: classId };
-
     return firstValueFrom(
-      this.http.request<EnrollmentResponse>('delete', url, { body, headers })
+      this.http.request<EnrollmentResponse>('delete', url, { body })
     );
   }
 
   async getCurrentUserWithClasses() {
-    const token = this.getAuthToken();
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return await firstValueFrom(
       this.http.get<{
         name: string;
         enrolledClasses: { id: number; nombre: string; dia: number; hora: string }[];
-      }>(`${this.API_URL}/User/me`, { headers })
+      }>(`${this.API_URL}/User/me`)
     );
   }
 
   async getUserHistory(): Promise<Historical[]> {
-  const token = this.getAuthToken();
-  const user = this._currentUser();
-  if (!token || !user) throw new Error('Usuario no autenticado');
-
-  const url = `${this.API_URL}/Historical/user/${user.id}`;
-  const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
-  return await firstValueFrom(this.http.get<Historical[]>(url, { headers }));
+    const user = this._currentUser();
+    if (!user) throw new Error('Usuario no autenticado');
+    const url = `${this.API_URL}/Historical/user/${user.id}`;
+    return await firstValueFrom(this.http.get<Historical[]>(url));
   }
 
-// async getPendingPayment(): Promise<Payment[]> {
-//   const token = this.getAuthToken();
-//   if (!token) throw new Error('No autenticado');
+  async getPaymentHistory(): Promise<Payment[]> {
+    const url = `${this.API_URL}/payment/me`;
+    return await firstValueFrom(
+      this.http.get<Payment[]>(url)
+    );
+  }
 
-//   const url = `${this.API_URL}/api/payment/me/payments/pending`;
-
-//   const headers = new HttpHeaders({
-//     Authorization: `Bearer ${token}`
-//   });
-
-//   return await firstValueFrom(
-//     this.http.get<Payment[]>(url, { headers })
-//   );
-// }
-
-  
-async getPaymentHistory(): Promise<Payment[]> {
-  const token = this.getAuthToken();
-  if (!token) throw new Error('No autenticado');
-
-  const headers = new HttpHeaders({
-    Authorization: `Bearer ${token}`
-  });
-
-  const url = `${this.API_URL}/payment/me`;
-
-  return await firstValueFrom(
-    this.http.get<Payment[]>(url, { headers })
-  );
-}
-
-
-
-  
   async createMercadoPagoPayment(
     request: { Monto: number; Email?: string }
   ): Promise<{ initPoint: string; preferenceId: string }> {
-    const token = this.getAuthToken();
-    if (!token) throw new Error('No autenticado');
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    });
-
     return await firstValueFrom(
       this.http.post<{ initPoint: string; preferenceId: string }>(
         `${this.API_URL}/payment/mercadopago`,
-        request,
-        { headers }
+        request
       )
     );
   }
 
   async notifyMercadoPago(paymentId: string): Promise<void> {
     if (!paymentId) throw new Error('paymentId es requerido');
-
     const url = `${this.API_URL}/payment/mercadopago/webhook`;
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-
-    await firstValueFrom(this.http.post(url, { id: paymentId }, { headers }));
+    await firstValueFrom(this.http.post(url, { id: paymentId }));
   }
 
   async verifyPaymentStatus(): Promise<void> {
     const url = `${this.API_URL}/payment/mercadopago/verify`;
-    const headers = this.getAuthHeaders();
-    await firstValueFrom(this.http.post(url, {}, { headers }));
+    await firstValueFrom(this.http.post(url, {}));
   }
 
   async createGymClass(request: CreateGymClassRequest): Promise<GymClass> {
-    const token = this.getAuthToken();
-    if (!token) throw new Error('No autenticado');
-
     const url = `${this.API_URL}/GymClass`;
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    });
-
     return firstValueFrom(
-      this.http.post<GymClass>(url, request, { headers })
+      this.http.post<GymClass>(url, request)
     );
   }
 }
