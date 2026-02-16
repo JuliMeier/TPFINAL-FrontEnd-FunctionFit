@@ -2,13 +2,14 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { CreateGymClassRequest, EnrollmentResponse, GymClass, Historical, Payment, User } from '../shared/interfaces';
+import { environment } from '../../environments/environment.development';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class ServicesService {
-  private API_URL = 'https://localhost:7150';
+  private API_URL = environment.apiUrl
   private http = inject(HttpClient);
 
   _currentUser = signal<User | null>(null);
@@ -44,7 +45,7 @@ export class ServicesService {
   }
 
   async login(email: string, password: string): Promise<boolean> {
-    const url = `${this.API_URL}/api/Auth/login`;
+    const url = `${this.API_URL}/Auth/login`;
     const body = { email, password };
 
     try {
@@ -107,7 +108,7 @@ export class ServicesService {
     const token = this.getAuthToken();
     if (!token) throw new Error('No auth token');
 
-    const url = `${this.API_URL}/api/GymClass`;
+    const url = `${this.API_URL}/GymClass`;
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
     const response = await firstValueFrom(
@@ -121,7 +122,7 @@ export class ServicesService {
     const user = this._currentUser();
     if (!token || !user) throw new Error('Usuario no autenticado');
 
-    const url = `${this.API_URL}/api/Enrollment/enroll`;
+    const url = `${this.API_URL}/Enrollment/enroll`;
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -136,7 +137,7 @@ export class ServicesService {
     const user = this._currentUser();
     if (!token || !user) throw new Error('Usuario no autenticado');
 
-    const url = `${this.API_URL}/api/Enrollment/unenroll`;
+    const url = `${this.API_URL}/Enrollment/unenroll`;
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -155,7 +156,7 @@ export class ServicesService {
       this.http.get<{
         name: string;
         enrolledClasses: { id: number; nombre: string; dia: number; hora: string }[];
-      }>(`${this.API_URL}/api/User/me`, { headers })
+      }>(`${this.API_URL}/User/me`, { headers })
     );
   }
 
@@ -164,7 +165,7 @@ export class ServicesService {
   const user = this._currentUser();
   if (!token || !user) throw new Error('Usuario no autenticado');
 
-  const url = `${this.API_URL}/api/Historical/user/${user.id}`;
+  const url = `${this.API_URL}/Historical/user/${user.id}`;
   const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
   return await firstValueFrom(this.http.get<Historical[]>(url, { headers }));
@@ -194,7 +195,7 @@ async getPaymentHistory(): Promise<Payment[]> {
     Authorization: `Bearer ${token}`
   });
 
-  const url = `${this.API_URL}/api/payment/me`;
+  const url = `${this.API_URL}/payment/me`;
 
   return await firstValueFrom(
     this.http.get<Payment[]>(url, { headers })
@@ -217,7 +218,7 @@ async getPaymentHistory(): Promise<Payment[]> {
 
     return await firstValueFrom(
       this.http.post<{ initPoint: string; preferenceId: string }>(
-        `${this.API_URL}/api/payment/mercadopago`,
+        `${this.API_URL}/payment/mercadopago`,
         request,
         { headers }
       )
@@ -227,14 +228,14 @@ async getPaymentHistory(): Promise<Payment[]> {
   async notifyMercadoPago(paymentId: string): Promise<void> {
     if (!paymentId) throw new Error('paymentId es requerido');
 
-    const url = `${this.API_URL}/api/payment/mercadopago/webhook`;
+    const url = `${this.API_URL}/payment/mercadopago/webhook`;
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
     await firstValueFrom(this.http.post(url, { id: paymentId }, { headers }));
   }
 
   async verifyPaymentStatus(): Promise<void> {
-    const url = `${this.API_URL}/api/payment/mercadopago/verify`;
+    const url = `${this.API_URL}/payment/mercadopago/verify`;
     const headers = this.getAuthHeaders();
     await firstValueFrom(this.http.post(url, {}, { headers }));
   }
@@ -243,7 +244,7 @@ async getPaymentHistory(): Promise<Payment[]> {
     const token = this.getAuthToken();
     if (!token) throw new Error('No autenticado');
 
-    const url = `${this.API_URL}/api/GymClass`;
+    const url = `${this.API_URL}/GymClass`;
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`

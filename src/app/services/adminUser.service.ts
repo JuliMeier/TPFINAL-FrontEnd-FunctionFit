@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ApiResponse, CreateUserByAdminRequest, UpdateUserByAdminRequest } from '../shared/interfaces';
+import { environment } from '../../environments/environment.development';
 
 @Injectable({ providedIn: 'root' })
 export class AdminUserService {
