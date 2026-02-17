@@ -180,4 +180,17 @@ export default class GymClassesComponent implements OnInit {
     if (available === 1) return 'Queda 1 lugar';
     return `Quedan ${available} lugares`;
   }
+
+  // En tu componente o como helper
+getClassImage(nombre: string): string {
+  const images: { [key: string]: string } = {
+    'Yoga': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=150&fit=crop',
+    'CrossFit': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=150&fit=crop',
+    'Spinning': 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&h=150&fit=crop',
+    'Pilates': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=150&fit=crop',
+    'Boxeo': 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=400&h=150&fit=crop',
+    'Natación': 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&h=150&fit=crop'
+  };
+  return images[nombre] ?? 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=150&fit=crop';
+}
 }
