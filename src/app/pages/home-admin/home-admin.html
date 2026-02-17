@@ -1,32 +1,47 @@
-<div class="py-14 text-center">
-    <h1 class="text-4xl font-bold text-slate-900 mb-4">
-        Bienvenido, Administrador
-    </h1>
-    <p class="text-lg text-slate-600 max-w-xl mx-auto mb-10">
-        Accede a las herramientas para gestionar tu gimnasio.
-    </p>
+<div class="pt-10 pb-16 px-10">
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
-        @for (card of cardData; track card.pathname) {
-        <a routerLink="{{ card.pathname }}" class="group flex items-center justify-between
-          rounded-2xl p-6
-          bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900
-          border border-slate-700
-          text-white shadow-lg
-          hover:shadow-yellow-500/20
-          transition-all duration-300">
-            <div class="text-left">
-                <p class="text-lg font-semibold mb-1">
-                    {{ card.title }}
-                </p>
-                <p class="text-sm text-slate-300">
-                    {{ card.text }}
-                </p>
-            </div>
-            <i class="{{ card.icon }} text-3xl text-yellow-400
-            group-hover:scale-110 transition-transform">
-            </i>
-        </a>
-        }
+  <!-- Contenedor centrado -->
+  <div class="max-w-5xl mx-auto">
+
+    <!-- Título -->
+    <div class="mb-14">
+      <h1 class="text-4xl font-bold mb-3">
+        Bienvenido, <span class="text-yellow-500">Administrador</span>
+      </h1>
+      <p class="text-slate-400 max-w-xl">
+        Accedé a las herramientas para gestionar tu gimnasio.
+      </p>
     </div>
+
+    <!-- Grid 2x2 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+      @for (card of cardData; track card.pathname) {
+        <a
+          routerLink="{{ card.pathname }}"
+          class="group flex items-center justify-between
+                 rounded-2xl p-8
+                 h-44 w-full
+                 bg-slate-800
+                 border border-slate-700
+                 text-white shadow-lg
+                 hover:-translate-y-1 hover:scale-[1.02]
+                 hover:shadow-yellow-500/20
+                 transition-all duration-300">
+
+          <div>
+            <p class="text-xl font-semibold mb-2">
+              {{ card.title }}
+            </p>
+            <p class="text-sm text-slate-400">
+              {{ card.text }}
+            </p>
+          </div>
+
+          <i class="{{ card.icon }} text-4xl text-yellow-400"></i>
+        </a>
+      }
+
+    </div>
+  </div>
 </div>

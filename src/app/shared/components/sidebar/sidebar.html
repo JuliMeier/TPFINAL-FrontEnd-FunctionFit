@@ -1,21 +1,44 @@
-<aside class="bg-gray-850 w-64 min-h-screen p-4 flex flex-col">
-  <div class="flex justify-center" style="margin-bottom: 20%;">
+<aside class="w-64 min-h-screen bg-slate-950 border-r border-slate-800 flex flex-col">
+
+  <!-- Logo original -->
+  <div class="flex justify-center items-center py-10 border-b border-slate-800">
     <a routerLink="/role-home">
-      <img src="logo-gym-transparent.png" alt="FunctionFit" class="h-18 w-auto" />
+      <img 
+        src="logo-gym-transparent.png" 
+        alt="FunctionFit"
+        class="h-20 w-auto hover:scale-105 transition-transform duration-300"
+      />
     </a>
   </div>
 
-  <nav class="flex-1">
-    <ul class="space-y-2">
+  <!-- Navegación -->
+  <nav class="flex-1 px-5 py-8">
+    <ul class="space-y-4">
+
       @for (item of menuItems(); track item.route) {
-      <li>
-        <a [routerLink]="item.route" routerLinkActive="bg-gray-700 text-yellow-300"
-          class="flex items-center gap-3 w-full p-3 rounded-lg text-white hover:bg-gray-700 hover:text-yellow-300 transition-colors">
-          <i class="fas {{ item.icon }} text-lg flex-shrink-0"></i>
-          <span class="text-lg truncate">{{ item.label }}</span>
-        </a>
-      </li>
+        <li>
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="bg-slate-800 text-yellow-500 border-l-4 border-yellow-500"
+            class="group flex items-center gap-4 w-full p-4 rounded-xl
+                   text-slate-300
+                   hover:bg-slate-800
+                   hover:text-yellow-500
+                   transition-all duration-200">
+
+            <i class="fas {{ item.icon }} text-xl w-6 text-center
+                      group-hover:scale-110 transition-transform">
+            </i>
+
+            <span class="text-lg font-medium tracking-wide truncate">
+              {{ item.label }}
+            </span>
+
+          </a>
+        </li>
       }
+
     </ul>
   </nav>
+
 </aside>
