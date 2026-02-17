@@ -1,86 +1,134 @@
-<div class="glass-card p-6 space-y-8">
-  
-  <section class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
-    <h2 class="text-xl font-bold mb-4 text-blue-400">Registrar Cobro Manual</h2>
+<div class="space-y-8 px-4">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-3xl font-bold">Gestión de Pagos</h1>
+  </div>
+
+  <!-- Formulario Cobro Manual -->
+  <div class="w-full p-8 relative rounded-2xl
+              bg-blue-500/10
+              border border-blue-400/30
+              backdrop-blur-xl
+              shadow-2xl shadow-blue-500/20">
+
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Registrar Cobro Manual</h2>
+
     <form (ngSubmit)="onSubmitManual()" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-      
-      <div class="flex flex-col gap-2">
-        <label class="text-sm text-slate-400">ID Usuario</label>
-        <input type="number" [(ngModel)]="manualCharge.userId" name="userId" 
-               class="bg-slate-900 border border-slate-700 rounded p-2 text-white outline-none focus:border-blue-500">
+
+      <div>
+        <label class="block text-sm font-medium text-zinc-400 mb-1">ID Usuario</label>
+        <input type="number" [(ngModel)]="manualCharge.userId" name="userId"
+               class="input-field w-full">
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label class="text-sm text-slate-400">Plan</label>
+      <div>
+        <label class="block text-sm font-medium text-zinc-400 mb-1">Plan</label>
         <select [(ngModel)]="manualCharge.planId" name="planId"
-                class="bg-slate-900 border border-slate-700 rounded p-2 text-white outline-none focus:border-blue-500">
+                class="input-field w-full">
           <option [value]="1">Plan Básico</option>
           <option [value]="2">Plan Premium</option>
           <option [value]="3">Plan Elite</option>
         </select>
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label class="text-sm text-slate-400">Monto Cobrado ($)</label>
+      <div>
+        <label class="block text-sm font-medium text-zinc-400 mb-1">Monto Cobrado ($)</label>
         <input type="number" [(ngModel)]="manualCharge.monto" name="monto"
-               class="bg-slate-900 border border-slate-700 rounded p-2 text-white outline-none focus:border-blue-500">
+               class="input-field w-full">
       </div>
 
-      <button type="submit" 
-              class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded transition-all">
+      <button type="submit"
+              class="btn-primary px-6 py-2.5 font-semibold
+                     transition-all duration-200
+                     hover:bg-yellow-400 hover:text-slate-900
+                     hover:shadow-lg hover:shadow-yellow-500/30">
         Registrar Pago
       </button>
-    </form>
-  </section>
 
-  <section>
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-bold text-white">Historial Global de Pagos</h2>
-      <input type="text" placeholder="Buscar por ID..." 
-             class="bg-slate-900 border border-slate-700 rounded-full px-4 py-1 text-sm outline-none focus:border-blue-500">
+    </form>
+  </div>
+
+  <!-- Tabla Historial -->
+  <div class="glass-card overflow-hidden">
+
+    <div class="flex justify-between items-center p-6 border-b border-slate-800">
+      <h2 class="text-xl font-bold text-slate-800">Historial Global de Pagos</h2>
+      <input type="text" placeholder="Buscar por User ID..."
+             (input)="updateSearch($event)"
+             class="input-field max-w-xs text-base py-2.5">
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
-        <thead class="bg-slate-800 text-slate-300 uppercase text-xs">
-          <tr>
-            <th class="p-4">ID</th>
-            <th class="p-4">Usuario</th>
-            <th class="p-4">Plan / Concepto</th>
-            <th class="p-4">Monto</th>
-            <th class="p-4">Fecha</th>
-            <th class="p-4">Estado</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-700">
-          @for (payment of payments; track payment.id) {
-            <tr class="hover:bg-slate-800/30 transition-colors">
-              <td class="p-4 font-mono text-slate-500 text-sm">#{{ payment.id }}</td>
-              <td class="p-4 text-white font-medium">User ID: {{ payment.userId }}</td>
-              <td class="p-4">
-                <span class="bg-slate-700 text-slate-200 text-xs px-2 py-1 rounded">
-                  {{ payment.title || 'Membresía' }}
-                </span>
-              </td>
-              <td class="p-4 text-blue-300 font-bold">${{ payment.monto }}</td>
-              <td class="p-4 text-slate-400 text-sm">
-                {{ payment.fecha | date:'dd/MM/yyyy HH:mm' }}
-              </td>
-              <td class="p-4">
-                <span [ngClass]="payment.pagado ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'"
-                      class="text-xs px-3 py-1 rounded-full border border-current font-semibold">
+    <table class="w-full text-left border-collapse text-base">
+
+      <thead class="bg-slate-800">
+        <tr>
+          <th class="p-6 text-yellow-400 text-lg font-semibold">ID</th>
+          <th class="p-6 text-yellow-400 text-lg font-semibold">Usuario</th>
+          <th class="p-6 text-yellow-400 text-lg font-semibold">Plan / Concepto</th>
+          <th class="p-6 text-yellow-400 text-lg font-semibold">Monto</th>
+          <th class="p-6 text-yellow-400 text-lg font-semibold">Fecha</th>
+          <th class="p-6 text-yellow-400 text-lg font-semibold text-right pr-12">Estado</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-slate-800">
+        @for (payment of filteredPayments(); track payment.id) {
+          <tr class="hover:bg-slate-800/30 transition-colors duration-200">
+
+            <td class="p-6 font-mono text-slate-400">#{{ payment.id }}</td>
+
+            <td class="p-6">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-blue-500/20
+                            flex items-center justify-center
+                            text-blue-400 font-bold text-lg
+                            border border-blue-500/30">
+                  {{ payment.userId }}
+                </div>
+                <p class="font-semibold text-lg">User ID: {{ payment.userId }}</p>
+              </div>
+            </td>
+
+            <td class="p-6">
+              <span class="px-3 py-1.5 rounded text-sm font-semibold
+                           bg-yellow-400/20 text-slate-800
+                           transition-all duration-200
+                           hover:bg-yellow-400 hover:text-slate-900
+                           hover:shadow-md hover:shadow-yellow-500/30
+                           cursor-default">
+                {{ payment.title || 'Membresía' }}
+              </span>
+            </td>
+
+            <td class="p-6 text-slate-800">${{ payment.monto }}</td>
+
+            <td class="p-6 text-slate-800 text-sm">
+              {{ payment.fecha | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+
+            <td class="p-6 pr-12">
+              <div class="flex justify-end">
+                <span class="px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-200"
+                  [ngClass]="payment.pagado
+                    ? 'bg-green-500/10 text-green-400 border-green-500/30 hover:bg-green-500 hover:text-white'
+                    : 'bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500 hover:text-white'">
                   {{ payment.pagado ? 'Aprobado' : 'Pendiente' }}
                 </span>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="6" class="p-8 text-center text-slate-500">No se encontraron pagos registrados.</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </section>
-</div>
+              </div>
+            </td>
 
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="p-16 text-center text-slate-500 italic text-lg">
+              No se encontraron pagos registrados.
+            </td>
+          </tr>
+        }
+      </tbody>
+
+    </table>
+  </div>
+
+</div>
