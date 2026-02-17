@@ -11,12 +11,13 @@ import { CommonModule } from '@angular/common';
 })
 export default class HomeSocio {
   private servicesService = inject(ServicesService);
+  user = this.servicesService._currentUser;
   enrolledClasses = signal<
     { id: number; nombre: string; dia: number; hora: string }[]
   >([]);
 
   constructor() {
-    this.loadUserClasses();
+    this.loadUserClasses();    
   }
 
   async loadUserClasses() {
