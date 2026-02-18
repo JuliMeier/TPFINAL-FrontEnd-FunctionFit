@@ -5,6 +5,7 @@ import { PlanService } from '../../services/plan.service';
 import { PaymentService } from '../../services/payment.service';
 import { AuthService } from '../../services/auth.service';
 import { PlanResponse, TypePlan } from '../../shared/interfaces';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-pagos',
@@ -18,6 +19,7 @@ export default class PagosComponent implements OnInit {
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private toastr = inject(ToastrService);
 
   plans = signal<PlanResponse[]>([]);
   loading = signal(false);
@@ -71,14 +73,17 @@ export default class PagosComponent implements OnInit {
       if (status === 'approved' && paymentId) {
         this.confirmarPagoEnServidor(paymentId);
       } else if (status === 'failure') {
-        alert('El pago fue rechazado. Por favor, intenta nuevamente.');
+        this.toastr.error('El pago fue rechazado. Por favor, intenta nuevamente.');
       }
     });
   }
 
   confirmarPagoEnServidor(paymentId: string) {
    
-    if (!paymentId) return alert('Por favor, ingresa el número de operación');
+    if (!paymentId) {
+      this.toastr.warning('No se recibió el ID del pago. No se puede confirmar.');
+      return;
+    }
 
     this.loading.set(true);
     this.paymentService.confirmarPago(paymentId).subscribe({
@@ -86,12 +91,12 @@ export default class PagosComponent implements OnInit {
         this.loading.set(false);
         this.esperandoConfirmacion.set(false); // Ocultamos el cuadro
         this.checkCurrentSubscription(); // Refrescar el estado de la suscripción
-        alert('¡Pago confirmado exitosamente!');
+        this.toastr.success('¡Pago confirmado exitosamente!');
         this.router.navigate(['/home-socio']);
       },
       error: (err) => {
         this.loading.set(false);
-        alert('No se pudo validar el pago. Verifica el número e intenta de nuevo.');
+        this.toastr.error('No se pudo validar el pago. Verifica el número e intenta de nuevo.');
       }
     });
   }
