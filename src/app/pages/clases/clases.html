@@ -27,7 +27,7 @@
 
   <!-- Clases -->
   <div *ngIf="!loading && !error"
-       class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+     class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 max-w-6xl mx-auto">
 
     <div *ngFor="let group of groupedClasses"
          class="bg-slate-700 rounded-2xl shadow-lg overflow-hidden
@@ -60,23 +60,22 @@
                   }">
               {{ getAvailabilityMessage(turno) }}
             </span>
+        <button *ngIf="!turno.isReservedByUser"
+                (click)="reserve(turno.id)"
+                [disabled]="!canReserve() || turno.currentEnrollments >= turno.maxCapacity"
+                class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
+                      bg-slate-500 text-white
+                      hover:bg-yellow-400 hover:text-black
+                      disabled:bg-gray-600 disabled:text-gray-400">
+          Reservar
+        </button>
 
-            <button *ngIf="!turno.isReservedByUser"
-                    (click)="reserve(turno.id)"
-                    [disabled]="!canReserve() || turno.currentEnrollments >= turno.maxCapacity"
-                    class="mt-1 w-full text-sm py-1.5 rounded-md font-medium transition
-                           bg-slate-500 text-white
-                           hover:bg-yellow-400 hover:text-black
-                           disabled:bg-gray-600 disabled:text-gray-400">
-              Reservar
-            </button>
-
-            <button *ngIf="turno.isReservedByUser"
-                    (click)="cancel(turno.id)"
-                    class="mt-1 w-full text-sm py-1.5 rounded-md font-medium transition
-                           bg-red-600 text-white hover:bg-red-700">
-              Cancelar
-            </button>
+        <button *ngIf="turno.isReservedByUser"
+                (click)="cancel(turno.id)"
+                class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
+                      bg-red-600 text-white hover:bg-red-700">
+          Cancelar
+        </button>
 
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SubscriptionStatus } from './subscription-status';
+import SubscriptionStatus from './subscription-status';
 
 describe('SubscriptionStatus', () => {
   let component: SubscriptionStatus;

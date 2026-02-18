@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ServicesService } from '../../services/services.service';
 import { Historical } from '../../shared/interfaces';
@@ -10,12 +10,9 @@ import Chart from 'chart.js/auto';
   imports: [CommonModule],
   templateUrl: './historical.html',
 })
-export default class HistoricalComponent implements OnInit, AfterViewInit {
+export default class HistoricalComponent implements OnInit {
 
-  @ViewChild('historyChart') chartRef!: ElementRef;
   chart: any;
-  dataReady = false;
-
   history: Historical[] = [];
 
   totalClasses = 0;
@@ -37,22 +34,11 @@ export default class HistoricalComponent implements OnInit, AfterViewInit {
       }));
 
       this.calculateMetrics();
-      this.dataReady = true;
-      this.tryBuildChart();
+      setTimeout(() => this.buildPieChart(), 200);
 
     } catch (error) {
       console.error('Error cargando historial:', error);
     }
-  }
-
-  ngAfterViewInit() {
-    this.tryBuildChart();
-  }
-
-  private tryBuildChart() {
-    if (!this.dataReady || !this.chartRef) return;
-    if (this.chart) return;
-    this.buildChart();
   }
 
   private formatDate(date: string | Date): string {
@@ -85,63 +71,66 @@ export default class HistoricalComponent implements OnInit, AfterViewInit {
   }
 
   
-    private buildChart() {
-  const canvas = document.getElementById('historyChart') as HTMLCanvasElement;
-  if (!canvas) {
-    console.error('Canvas no encontrado');
-    return;
-  }
-
-  if (this.chart) {
-    this.chart.destroy();
-  }
+  private buildPieChart() {
+  const canvas = document.getElementById('pieChart') as HTMLCanvasElement;
+  if (!canvas) return;
+  if (this.chart) this.chart.destroy();
 
   const clases = [...new Set(this.history.map(h => h.className))];
-  const activas = clases.map(c =>
+  const counts = clases.map(c =>
     this.history.filter(h => h.className === c && h.status === 'Active').length
   );
-  const canceladas = clases.map(c =>
-    this.history.filter(h => h.className === c && h.status === 'Cancelled').length
-  );
+
+  const colors = [
+    'rgba(74, 222, 128, 0.8)',
+    'rgba(250, 204, 21, 0.8)',
+    'rgba(96, 165, 250, 0.8)',
+    'rgba(251, 146, 60, 0.8)',
+    'rgba(192, 132, 252, 0.8)',
+    'rgba(248, 113, 113, 0.8)',
+  ];
 
   this.chart = new Chart(canvas, {
-    type: 'bar',
+    type: 'pie',
     data: {
       labels: clases,
-      datasets: [
-        {
-          label: 'Asistidas',
-          data: activas,
-          backgroundColor: 'rgba(74, 222, 128, 0.6)',
-          borderColor: 'rgb(74, 222, 128)',
-          borderWidth: 2,
-          borderRadius: 6
-        },
-        {
-          label: 'Canceladas',
-          data: canceladas,
-          backgroundColor: 'rgba(248, 113, 113, 0.6)',
-          borderColor: 'rgb(248, 113, 113)',
-          borderWidth: 2,
-          borderRadius: 6
-        }
-      ]
+      datasets: [{
+        data: counts,
+        backgroundColor: colors,
+        borderColor: '#1e293b',
+        borderWidth: 2,
+        hoverOffset: 16
+      }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 2.2,
+      animation: {
+        animateScale: true,
+        animateRotate: true,
+        duration: 1000,
+        easing: 'easeInOutQuart'
+      },
       plugins: {
         legend: {
-          labels: { color: '#1e293b', font: { size: 13 } }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: '#1e293b' },
-          grid: { color: 'rgba(0,0,0,0.05)' }
+          position: 'bottom',
+          labels: {
+            color: '#1e293b',
+            font: { size: 13 },
+            padding: 20,
+            usePointStyle: true,
+            pointStyleWidth: 10
+          }
         },
-        y: {
-          ticks: { color: '#1e293b', stepSize: 1 },
-          grid: { color: 'rgba(0,0,0,0.05)' }
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const total = counts.reduce((a, b) => a + b, 0);
+              const pct = total > 0 ? Math.round((ctx.raw as number / total) * 100) : 0;
+              return ` ${ctx.label}: ${ctx.raw} clases (${pct}%)`;
+            }
+          }
         }
       }
     }
