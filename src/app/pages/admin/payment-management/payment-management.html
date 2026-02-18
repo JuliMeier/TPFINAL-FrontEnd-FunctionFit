@@ -6,48 +6,58 @@
   </div>
 
   <!-- Formulario Cobro Manual -->
-  <div class="w-full p-8 relative rounded-2xl
-              bg-blue-500/10
-              border border-blue-400/30
-              backdrop-blur-xl
-              shadow-2xl shadow-blue-500/20">
 
-    <h2 class="text-2xl font-bold text-slate-800 mb-6">Registrar Cobro Manual</h2>
 
-    <form (ngSubmit)="onSubmitManual()" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+  <div class="w-full p-8 relative rounded-2xl bg-blue-500/10 border border-blue-400/30 backdrop-blur-xl shadow-2xl shadow-blue-500/20">
+  
+  <h2 class="text-2xl font-bold text-slate-800 mb-6">Registrar Cobro Manual</h2>
 
-      <div>
-        <label class="block text-sm font-medium text-zinc-400 mb-1">ID Usuario</label>
-        <input type="number" [(ngModel)]="manualCharge.userId" name="userId"
-               class="input-field w-full">
-      </div>
+  <form (ngSubmit)="onSubmitManual()" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 
-      <div>
-        <label class="block text-sm font-medium text-zinc-400 mb-1">Plan</label>
-        <select [(ngModel)]="manualCharge.planId" name="planId"
-                class="input-field w-full">
-          <option [value]="1">Plan Básico</option>
-          <option [value]="2">Plan Premium</option>
-          <option [value]="3">Plan Elite</option>
-        </select>
-      </div>
+    <div>
+      <label class="block text-sm font-medium text-zinc-400 mb-1">Seleccionar Socio</label>
+      <select [(ngModel)]="manualCharge.userId" name="userId" 
+              class="bg-slate-800 border border-slate-700 text-white rounded-xl p-3 w-full focus:ring-2 focus:ring-blue-500 outline-none">
+        <option [value]="null" disabled>Elegir socio...</option>
+        @for (user of users(); track user.id) {
+          <option [value]="user.id">
+            {{ user.nombre }} {{ user.apellido }} (ID: {{ user.id }})
+          </option>
+        }
+      </select>
+    </div>
 
-      <div>
-        <label class="block text-sm font-medium text-zinc-400 mb-1">Monto Cobrado ($)</label>
-        <input type="number" [(ngModel)]="manualCharge.monto" name="monto"
-               class="input-field w-full">
-      </div>
+    <div>
+      <label class="block text-sm font-medium text-zinc-400 mb-1">Plan</label>
+      <select [(ngModel)]="manualCharge.planId" 
+              (change)="onPlanChange()" 
+              name="planId" 
+              class="bg-slate-800 border border-slate-700 text-white rounded-xl p-3 w-full focus:ring-2 focus:ring-blue-500 outline-none">
+        <option [value]="null" disabled>Seleccionar plan...</option>
+        @for (plan of plans(); track plan.id) {
+          <option [value]="plan.id">{{ plan.tipo === 1 ? 'Basic' : plan.tipo === 2 ? 'Premium' : 'Elite'  }}</option>
+        }
+      </select>
+    </div>
 
-      <button type="submit"
-              class="btn-primary px-6 py-2.5 font-semibold
-                     transition-all duration-200
-                     hover:bg-yellow-400 hover:text-slate-900
-                     hover:shadow-lg hover:shadow-yellow-500/30">
-        Registrar Pago
-      </button>
+    <div>
+      <label class="block text-sm font-medium text-zinc-400 mb-1">Monto ($)</label>
+      <input type="number" 
+             [(ngModel)]="manualCharge.monto" 
+             name="monto"
+             readonly
+             class="bg-slate-900/50 border border-slate-700 text-yellow-400 font-bold rounded-xl p-3 w-full cursor-not-allowed"
+             placeholder="0.00">
+    </div>
 
-    </form>
-  </div>
+    <button type="submit"
+            [disabled]="!manualCharge.userId || !manualCharge.planId"
+            class="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-yellow-500/20 disabled:opacity-30">
+      Registrar Pago
+    </button>
+
+  </form>
+</div>
 
   <!-- Tabla Historial -->
   <div class="glass-card overflow-hidden">
@@ -65,10 +75,10 @@
         <tr>
           <th class="p-6 text-yellow-400 text-lg font-semibold">ID</th>
           <th class="p-6 text-yellow-400 text-lg font-semibold">Usuario</th>
-          <th class="p-6 text-yellow-400 text-lg font-semibold">Plan / Concepto</th>
+          <th class="p-6 text-yellow-400 text-lg font-semibold">Método de pago</th>
           <th class="p-6 text-yellow-400 text-lg font-semibold">Monto</th>
           <th class="p-6 text-yellow-400 text-lg font-semibold">Fecha</th>
-          <th class="p-6 text-yellow-400 text-lg font-semibold text-right pr-12">Estado</th>
+          
         </tr>
       </thead>
 
@@ -97,7 +107,7 @@
                            hover:bg-yellow-400 hover:text-slate-900
                            hover:shadow-md hover:shadow-yellow-500/30
                            cursor-default">
-                {{ payment.title || 'Membresía' }}
+                {{ payment.metodoPago || 'Efectivo' }}
               </span>
             </td>
 
@@ -107,16 +117,6 @@
               {{ payment.fecha | date:'dd/MM/yyyy HH:mm' }}
             </td>
 
-            <td class="p-6 pr-12">
-              <div class="flex justify-end">
-                <span class="px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-200"
-                  [ngClass]="payment.pagado
-                    ? 'bg-green-500/10 text-green-400 border-green-500/30 hover:bg-green-500 hover:text-white'
-                    : 'bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500 hover:text-white'">
-                  {{ payment.pagado ? 'Aprobado' : 'Pendiente' }}
-                </span>
-              </div>
-            </td>
 
           </tr>
         } @empty {
