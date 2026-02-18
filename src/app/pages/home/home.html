@@ -25,8 +25,7 @@
                     </h1>
                     <p class="text-xl text-gray-300 mb-8 leading-relaxed">
                         Únete a <span class="font-bold">FunctionFit()</span> y comienza tu viaje hacia un estilo de vida
-                        saludable con
-                        nuestros entrenadores expertos y equipamiento de última generación.
+                        saludable con nuestros entrenadores expertos y equipamiento de última generación.
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                         <a routerLink="/register"
@@ -79,12 +78,6 @@
                                 </li>
                                 }
                             </ul>
-
-                            <a [routerLink]="['/register']" [queryParams]="{ plan: plan.title }"
-                                class="block text-center py-3 rounded-lg font-bold transition-colors"
-                                [ngClass]="plan.highlighted ? 'bg-black text-white hover:bg-gray-800' : 'bg-yellow-500 text-black hover:bg-yellow-600'">
-                                Elegir Plan
-                            </a>
                         </div>
                     </div>
                     }
@@ -152,7 +145,6 @@
                 </div>
             </div>
         </section>
-
 
     </main>
 
