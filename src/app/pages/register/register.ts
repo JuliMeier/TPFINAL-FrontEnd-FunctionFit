@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RegisterService } from '../../services/register.service';
 import { Router, RouterLink } from '@angular/router';
-
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-register',
@@ -13,20 +13,13 @@ import { Router, RouterLink } from '@angular/router';
 })
 export default class Register {
   registerForm: FormGroup;
-  isLoading: boolean = false; 
+  isLoading: boolean = false;
   errorMessage: string | null = null;
 
   private fb = inject(FormBuilder);
   private registerService = inject(RegisterService);
   private router = inject(Router);
-
-  planes = [
-    { id: 1, nombre: 'Basic' },
-    { id: 2, nombre: 'Premium' },
-    { id: 3, nombre: 'Elite' }
-  ]
-
-  
+  private toastr = inject(ToastrService);
 
   constructor() {
     this.registerForm = this.fb.group({
@@ -34,8 +27,7 @@ export default class Register {
       lastName: ['', [Validators.required]],
       phoneNumber: ['', [Validators.required, Validators.pattern('^[0-9]{8,15}$')]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
-      plan: ['', [Validators.required]]
+      password: ['', [Validators.required]]
     });
   }
 
@@ -55,10 +47,11 @@ export default class Register {
 
     try {
       const response = await this.registerService.register(this.registerForm.value);
-       console.log('Registro exitoso:', response.message);
-       this.router.navigate(['/login']);
-     
+      console.log('Registro exitoso:', response.message);
+      this.toastr.success('¡Registro exitoso! Iniciá sesión para continuar.', '¡Bienvenido!');
+      setTimeout(() => this.router.navigate(['/login']), 2000);
     } catch (error: any) {
+      this.toastr.error(error.message || 'Error inesperado', 'Error');
       this.errorMessage = error.message || 'Error inesperado';
     } finally {
       this.isLoading = false;

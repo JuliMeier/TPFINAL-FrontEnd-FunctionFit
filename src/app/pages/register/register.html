@@ -62,18 +62,6 @@
                             requerida</div>
                     </div>
 
-                    <div>
-                        <select formControlName="plan" [ngClass]="{'border-red-500 ' : hasError('plan', 'required') }"
-                            class="w-full px-4 py-2 bg-gray-800 border border-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-yellow-500">
-                            <option value="" disabled selected>Elige un plan</option>
-                            @for (plan of planes; track plan.id) {
-                            <option [value]="plan.id">{{ plan.nombre }}</option>
-                            }
-                        </select>
-                        <div class="text-red-500 text-sm mt-2" *ngIf="hasError('plan', 'required')">El plan es requerido
-                        </div>
-                    </div>
-
                     <button type="submit"
                         class="w-full py-2 px-4 bg-yellow-500 text-gray-900 font-bold rounded hover:bg-yellow-400 disabled:opacity-50 transition"
                         [disabled]="!registerForm.valid">
