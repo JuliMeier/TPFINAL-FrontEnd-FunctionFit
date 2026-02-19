@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-reset-password',
@@ -22,7 +23,12 @@ export default class ResetPasswordComponent implements OnInit {
   private route = inject(ActivatedRoute)
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastr = inject(ToastrService);
+
   token = signal<string | null>(null);
+  loading = signal(false);
+  errorMessage = signal('')
+
 
   form = new FormGroup({
     password: new FormControl('', [
@@ -51,6 +57,8 @@ export default class ResetPasswordComponent implements OnInit {
     
     if (!this.token()) {
       // Redirigir si no hay token
+      this.toastr.error('El enlace de recuperación es inválido o ha expirado.', 'Error');
+      this.router.navigate(['/login']);
     }
   }
 
@@ -67,9 +75,21 @@ export default class ResetPasswordComponent implements OnInit {
     
     try {
       await this.authService.resetPassword(data);
-      this.router.navigate(['/login']);
-    } catch (error) {
+      this.toastr.success('Tu contraseña ha sido actualizada correctamente.', '¡Éxito!');
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 2000);
+
+    } catch (error: any) {
       console.error('Error al resetear contraseña:', error);
+      
+      
+      const msg = error.error?.message || 'No se pudo actualizar la contraseña. El token podría estar vencido.';
+      this.errorMessage.set(msg);
+      this.toastr.error(msg, 'Error');
+    } 
+    finally {
+      this.loading.set(false);
     }
   }
 }

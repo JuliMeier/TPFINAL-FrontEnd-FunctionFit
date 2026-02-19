@@ -1,52 +1,50 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  ReactiveFormsModule,
-  FormGroup,
-  FormControl,
-  Validators
-} from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterModule } from '@angular/router';
+import { ToastrService } from 'ngx-toastr'; 
 
 @Component({
   selector: 'app-forgot-password',
+  standalone: true, 
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './forgot-password.html',
-  styles: ``
 })
 export default class ForgotPassword {
-
-  
-  loading = signal(false);
-  success = signal(false);
-  message = signal('');
-  errorMessage = signal('');
-  authService = inject(AuthService);
+  private authService = inject(AuthService);
   private router = inject(Router);
+  private toastr = inject(ToastrService); 
+
+  loading = signal(false);
 
   form = new FormGroup({
-    email: new FormControl('', [
-      Validators.required,
-      Validators.email
-    ])
+    email: new FormControl('', [Validators.required, Validators.email])
   });
 
   async onSubmit() {
     if (this.form.invalid) return;
 
     this.loading.set(true);
-    this.message.set('');
-    this.errorMessage.set('');
 
     try {
       const email = this.form.value.email;
       if (!email) return;
-      
+
       await this.authService.forgotPassword(email);
-      this.message.set('Si el correo existe en nuestro sistema, recibirás un email con instrucciones para restablecer tu contraseña.');
-    } catch (error) {
-      this.errorMessage.set('Ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente más tarde.');
+      
+      
+      this.toastr.success(
+        'Si el correo existe, recibirás instrucciones pronto.', 
+        'Correo Enviado',
+        { timeOut: 5000 }
+      );
+      
+      this.form.reset();
+    } catch (error: any) {
+      
+      const errorMsg = error.error?.message || 'Error de conexión. Intenta nuevamente.';
+      this.toastr.error(errorMsg, 'Error');
     } finally {
       this.loading.set(false);
     }
