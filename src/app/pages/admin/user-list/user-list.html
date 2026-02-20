@@ -1,4 +1,4 @@
-<div class="space-y-6 px-6 py-6"> 
+<div class="space-y-6 px-6 py-6">
 
   <!-- HEADER -->
   <div class="flex justify-between items-center">
@@ -7,17 +7,10 @@
     </h1>
 
     <div class="flex gap-4">
-      <input 
-        type="text" 
-        (input)="updateSearch($event)" 
-        placeholder="Buscar..."
-        class="input-field text-base py-2.5">
+      <input type="text" (input)="updateSearch($event)" placeholder="Buscar..." class="input-field text-base py-2.5">
 
       <!-- BOTON AMARILLO HOVER -->
-      <button 
-        type="button"
-        (click)="selectedUser = null; showForm.set(true)"
-        class="btn-primary px-6 py-3 text-base font-semibold
+      <button type="button" (click)="selectedUser = null; showForm.set(true)" class="btn-primary px-6 py-3 text-base font-semibold
                transition-all duration-200
                hover:bg-yellow-400
                hover:text-slate-900
@@ -29,37 +22,32 @@
   </div>
 
 
-@if (showForm()) {
-<div class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-  
-  <div 
-    class="w-full max-w-2xl p-8 relative rounded-2xl
+  @if (showForm()) {
+  <div class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+
+    <div class="w-full max-w-2xl p-8 relative rounded-2xl
            bg-blue-500/10
            border border-blue-400/30
            backdrop-blur-xl
            shadow-2xl shadow-blue-500/20">
 
-    <!-- Botón cerrar -->
-    <button
-      (click)="showForm.set(false)"
-      class="absolute top-4 right-4 text-blue-300 hover:text-white transition">
-      ✕
-    </button>
+      <!-- Botón cerrar -->
+      <button (click)="showForm.set(false)" class="absolute top-4 right-4 text-blue-300 hover:text-white transition">
+        ✕
+      </button>
 
-    <!-- Título -->
-    <h2 class="text-2xl font-bold mb-6 text-blue-200">
-      {{ selectedUser ? 'Editar Usuario' : 'Nuevo Usuario' }}
-    </h2>
+      <!-- Título -->
+      <h2 class="text-2xl font-bold mb-6 text-blue-200">
+        {{ selectedUser ? 'Editar Usuario' : 'Nuevo Usuario' }}
+      </h2>
 
-    <!-- Formulario -->
-    <app-user-form 
-      [userToEdit]="selectedUser" 
-      (onClose)="showForm.set(false); loadUsers()" />
+      <!-- Formulario -->
+      <app-user-form [userToEdit]="selectedUser" (onClose)="showForm.set(false); loadUsers()" />
+
+    </div>
 
   </div>
-
-</div>
-}
+  }
 
 
 
@@ -84,8 +72,7 @@
           <!-- USUARIO -->
           <td class="p-6">
             <div class="flex items-center gap-4">
-              <div
-                class="w-10 h-10 rounded-full bg-blue-500/20 
+              <div class="w-10 h-10 rounded-full bg-blue-500/20 
                        flex items-center justify-center 
                        text-blue-400 font-bold text-lg">
                 {{ user.nombre?.charAt(0) ?? 'U' }}
@@ -109,31 +96,27 @@
 
           <!-- PLAN -->
           <td class="p-6">
-            <span 
-              class="px-3 py-1 rounded text-sm font-medium"
+            @if (user.roleId !== 1) {
+            <span
+              class="px-3 py-1  text-xs font-black bg-slate-800 text-white border border-slate-700 uppercase tracking-widest">
+              <i class="fas fa-user-shield mr-1"></i> Admin
+            </span>
+            } @else {
+            <span class="px-3 py-1  text-xs font-bold uppercase tracking-wide"
               [ngClass]="planConfig[user.planId ?? 0].class">
               {{ planConfig[user.planId ?? 0].label }}
             </span>
+            }
           </td>
 
           <!-- ACCIONES -->
-          <td class="p-6 text-right space-x-6">
-
-            <!-- EDITAR AZUL OSCURO (VISIBLE SIEMPRE) -->
-            <button 
-              type="button"
-              (click)="editUser(user)" 
-              class="text-slate-800 font-medium text-base 
-                     hover:text-yellow-400 
-                     transition-colors duration-200">
+          <td class="p-6 text-right space-x-4">
+            <button type="button" (click)="editUser(user)" class="text-slate-800 hover:text-yellow-400 
+                  font-medium text-base transition-colors duration-200">
               Editar
             </button>
 
-            <!-- ELIMINAR ROJO FIJO -->
-            <button 
-              type="button"
-              (click)="confirmDelete(user.id)" 
-              class="text-red-600 font-medium text-base
+            <button type="button" (click)="confirmDelete(user.id)" class="text-red-600 font-medium text-base
                      hover:text-red-500 transition">
               Eliminar
             </button>
@@ -161,43 +144,37 @@
   <!-- MODAL CONFIRMAR ELIMINAR -->
   <!-- ========================= -->
 
-@if (showConfirmDialog) {
-<div class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-  
-  <div class="glass-card w-full max-w-md p-8 text-center relative">
+  @if (showConfirmDialog) {
+  <div class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
 
-    <h2 class="text-xl font-bold mb-2">
-      ¿Eliminar usuario?
-    </h2>
+    <div class="glass-card w-full max-w-md p-8 text-center relative">
 
-    <p class="text-slate-400 mb-6">
-      Esta acción no se puede deshacer.
-    </p>
+      <h2 class="text-xl font-bold mb-2">
+        ¿Eliminar usuario?
+      </h2>
 
-    <div class="flex justify-center gap-6">
+      <p class="text-slate-400 mb-6">
+        Esta acción no se puede deshacer.
+      </p>
 
-      <button 
-        type="button"
-        (click)="cancelDelete()"
-        class="px-6 py-2 rounded-lg bg-slate-700 
+      <div class="flex justify-center gap-6">
+
+        <button type="button" (click)="cancelDelete()" class="px-6 py-2 rounded-lg bg-slate-700 
                hover:bg-slate-600 
                transition font-medium">
-        Cancelar
-      </button>
+          Cancelar
+        </button>
 
-      <button 
-        type="button"
-        (click)="deleteUser(pendingDeleteId)"
-        class="px-6 py-2 rounded-lg bg-red-600 
+        <button type="button" (click)="deleteUser(pendingDeleteId)" class="px-6 py-2 rounded-lg bg-red-600 
                hover:bg-red-500 
                transition font-medium text-white">
-        Eliminar
-      </button>
+          Eliminar
+        </button>
+
+      </div>
 
     </div>
-
   </div>
-</div>
-}
+  }
 
 </div>
