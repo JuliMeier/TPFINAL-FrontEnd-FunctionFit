@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angula
 import { CommonModule, Location } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ServicesService } from '../../services/services.service';
+import { ToastrService } from 'ngx-toastr'; 
 
 @Component({
   selector: 'app-login',
@@ -14,6 +15,7 @@ export default class Login {
   private servicesService = inject(ServicesService);
   private router = inject(Router);
   private location = inject(Location);
+  private toastr = inject(ToastrService); 
 
   isSubmitting = signal(false);
   loginForm = new FormGroup({
@@ -26,9 +28,6 @@ export default class Login {
     return !!ctrl && ctrl.invalid && ctrl.touched;
   }
 
-  // goHome(): void {
-  //   this.router.navigateByUrl('/home');
-  // }
 
   async onSubmit(): Promise<void> {
     if (this.loginForm.invalid) {
@@ -45,7 +44,7 @@ export default class Login {
     if (success) {
       this.router.navigate(['/role-home']);
     } else {
-      alert('Credenciales inválidas.\n\nUsuarios de prueba:\n• cliente@demo.com\n• admin@demo.com\n• superadmin@demo.com\nContraseña: 1234');
+      this.toastr.error('Credenciales inválidas.\n\nUsuarios de prueba:\n• cliente@demo.com\n• admin@demo.com\n• superadmin@demo.com\nContraseña: 1234');
     }
   }
 }

@@ -31,25 +31,11 @@ export class UserForm implements OnInit {
     apellido: ['', [Validators.required]],
     telefono: ['', [Validators.required, Validators.pattern('^[0-9]{8,15}$')]],
     email: ['', [Validators.required, Validators.email]],
-    planId: ['', [Validators.required]],
     roleId: ['', [Validators.required]],
     contraseña: ['', [Validators.required]],
   });
 
   constructor() {
-    // Escuchar cambios en roleId
-    this.userForm.get('roleId')?.valueChanges.subscribe(roleId => {
-      if (roleId == "1") { // 1 = Socio
-        this.userForm.get('planId')?.enable();
-        this.userForm.get('planId')?.setValidators([Validators.required]);
-      } else {
-        this.userForm.get('planId')?.reset();
-        this.userForm.get('planId')?.disable();
-        this.userForm.get('planId')?.clearValidators();
-      }
-      this.userForm.get('planId')?.updateValueAndValidity();
-    });
-
    
   }
 

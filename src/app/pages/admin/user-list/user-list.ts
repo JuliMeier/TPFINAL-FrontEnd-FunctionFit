@@ -5,7 +5,6 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { UserForm } from "../user-form/user-form";
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialog } from '../../../shared/components/confirmation-dialog/confirmation-dialog';
 import { PLAN_CONFIG } from '../../../shared/interfaces';
 
 @Component({
