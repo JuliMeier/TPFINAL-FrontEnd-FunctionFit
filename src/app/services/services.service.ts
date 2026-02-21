@@ -59,17 +59,19 @@ export class ServicesService {
           apellido: string;
           telefono: string;
           planId?: number | null;
+          name?: string;
         }>(url, body)
       );
 
       const user: User = {
         id: res.userId.toString(),
-        nombre: res.nombre,
-        apellido: res.apellido,
-        telefono: res.telefono,
+        nombre: res.name || res.nombre || 'Usuario',
+        apellido: res.apellido || '',
+        telefono: res.telefono || '',
         email: res.email,
         role: res.role,
-        planId: res.planId ?? null
+        planId: res.planId ?? null,
+        name: res.name
       };
 
       localStorage.setItem('authToken', res.token);

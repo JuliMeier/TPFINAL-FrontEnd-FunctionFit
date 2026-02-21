@@ -6,6 +6,7 @@ export interface User {
   telefono: string;
   planId: number | null;
   role: 'Socio' | 'Administrador' | 'SuperAdministrador';
+  name?:string
 }
 
 export const PLAN_CONFIG: Record<number, { label: string; class: string }> = {

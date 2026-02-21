@@ -11,6 +11,7 @@ import { RouterModule } from '@angular/router';
 })
 export default class HomeAdmin {
   private services = inject(ServicesService);
+  user = this.services._currentUser;
 
   cardData = [
     {
