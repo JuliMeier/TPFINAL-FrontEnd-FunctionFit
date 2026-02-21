@@ -1,59 +1,47 @@
-<div class="dashboard">
-    <div class="header">
-        <mat-icon>admin_panel_settings</mat-icon>
-        <h1 class="text-2xl font-bold">Panel de Super Administrador</h1>
+<div class="pt-10 pb-16 px-10">
+
+  <!-- Contenedor centrado -->
+  <div class="max-w-5xl mx-auto">
+
+    <!-- Título -->
+    <div class="mb-14">
+      <h1 class="text-4xl font-bold mb-3">
+        Bienvenido, <span class="text-yellow-500">Super Administrador</span>
+      </h1>
+      <p class="text-slate-400 max-w-xl">
+        Accedé a las herramientas para gestionar tu gimnasio.
+      </p>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-label">Usuarios Totales</div>
-            <div class="stat-value text-blue-400">{{ stats().totalUsers }}</div>
-        </div>
+    <!-- Grid 2x2 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
 
-        <div class="stat-card">
-            <div class="stat-label">Socios</div>
-            <div class="stat-value text-green-400">{{ stats().totalSocios }}</div> <!-- minúscula "s" -->
-        </div>
+      @for (card of cardData; track card.pathname) {
+        <a
+          routerLink="{{ card.pathname }}"
+          class="group flex items-center justify-between
+                 rounded-2xl p-8
+                 h-44 w-full
+                 bg-slate-800
+                 border border-slate-700
+                 text-white shadow-lg
+                 hover:-translate-y-1 hover:scale-[1.02]
+                 hover:shadow-yellow-500/20
+                 transition-all duration-300">
 
-        <div class="stat-card">
-            <div class="stat-label">Administradores</div>
-            <div class="stat-value text-purple-400">{{ stats().totalAdmins }}</div>
-        </div>
+          <div>
+            <p class="text-xl font-semibold mb-2">
+              {{ card.title }}
+            </p>
+            <p class="text-sm text-slate-400">
+              {{ card.text }}
+            </p>
+          </div>
 
-        <div class="stat-card">
-            <div class="stat-label">Clases Totales</div>
-            <div class="stat-value text-yellow-400">{{ stats().totalClasses }}</div>
-        </div>
+          <i class="{{ card.icon }} text-4xl text-yellow-400"></i>
+        </a>
+      }
+
     </div>
-
-    <div class="table-container">
-        <div style="padding: 1.5rem; border-bottom: 1px solid rgba(148, 163, 184, 0.1);">
-            <h2 style="display: flex; align-items: center; gap: 8px; font-size: 1.25rem;">
-                <mat-icon>person_add</mat-icon>
-                Últimos Usuarios Registrados
-            </h2>
-        </div>
-
-        <table mat-table [dataSource]="recentUsers()" style="width: 100%;">
-            <ng-container matColumnDef="email">
-                <th mat-header-cell *matHeaderCellDef style="padding: 1rem; text-align: left;">Email</th>
-                <td mat-cell *matCellDef="let user" style="padding: 1rem;">{{ user.email }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="role">
-                <th mat-header-cell *matHeaderCellDef style="padding: 1rem; text-align: left;">Rol</th>
-                <td mat-cell *matCellDef="let user" style="padding: 1rem;">
-                    <span [ngClass]="['role-badge', getRoleClass(user.role)]">{{ user.role }}</span>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="plan">
-                <th mat-header-cell *matHeaderCellDef style="padding: 1rem; text-align: left;">Plan</th>
-                <td mat-cell *matCellDef="let user" style="padding: 1rem;">{{ user.plan }}</td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-    </div>
+  </div>
 </div>

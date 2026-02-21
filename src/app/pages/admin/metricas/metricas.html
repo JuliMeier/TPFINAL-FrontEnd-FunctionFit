@@ -1,0 +1,186 @@
+<div class="dashboard">
+    <!-- Header -->
+    <div class="header">
+        <mat-icon>insights</mat-icon>
+        <h1 class="text-2xl font-bold">Métricas de Actividad</h1>
+    </div>
+
+    @if (loading()) {
+    <div class="loading-container">
+        <mat-icon class="animate-spin text-4xl text-yellow-400">progress_activity</mat-icon>
+        <p class="text-slate-400">Cargando estadísticas...</p>
+    </div>
+    } @else {
+
+    <!-- USUARIOS -->
+    <h2 class="section-title">
+        <mat-icon>people</mat-icon>
+        Usuarios
+    </h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon bg-users">
+                <mat-icon>people</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Total Usuarios</div>
+                <div class="stat-value text-blue-400">{{ stats().totalUsers }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-socios">
+                <mat-icon>fitness_center</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Socios Activos</div>
+                <div class="stat-value text-green-400">{{ stats().totalSocios }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-admins">
+                <mat-icon>security</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Administradores</div>
+                <div class="stat-value text-purple-400">{{ stats().totalAdmins }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUSCRIPCIONES -->
+    <h2 class="section-title">
+        <mat-icon>membership</mat-icon>
+        Suscripciones
+    </h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon bg-subs">
+                <mat-icon>check_circle</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Suscripciones Activas</div>
+                <div class="stat-value text-red-400">{{ stats().activeSubscriptions }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-subs">
+                <mat-icon>cancel</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Suscripciones Vencidas</div>
+                <div class="stat-value text-red-400">{{ stats().expiredSubscriptions }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-subs">
+                <mat-icon>trending_up</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Tasa de Conversión</div>
+                <div class="stat-value text-green-400">{{ stats().subscriptionRate }}%</div>
+                <div class="stat-subtitle">De socios con suscripción activa</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLASES -->
+    <h2 class="section-title">
+        <mat-icon>event</mat-icon>
+        Clases
+    </h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon bg-classes">
+                <mat-icon>pool</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Total Clases</div>
+                <div class="stat-value text-yellow-400">{{ stats().totalClasses }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-occupancy">
+                <mat-icon>event_available</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Con Cupos Disponibles</div>
+                <div class="stat-value text-cyan-400">{{ stats().classesWithAvailableSpots }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-occupancy">
+                <mat-icon>event_busy</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Clases Completas</div>
+                <div class="stat-value text-orange-400">{{ stats().fullClasses }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-occupancy">
+                <mat-icon>insights</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Tasa de Ocupación</div>
+                <div class="stat-value text-cyan-400">{{ stats().occupancyRate }}%</div>
+                <div class="stat-subtitle">Promedio de ocupación</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGOS -->
+    <h2 class="section-title">
+        <mat-icon>payments</mat-icon>
+        Pagos e Ingresos
+    </h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon bg-revenue">
+                <mat-icon>attach_money</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Ingresos Totales</div>
+                <div class="stat-value text-green-400">{{ formatCurrency(stats().totalRevenue) }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-payments">
+                <mat-icon>payment</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Total Pagos</div>
+                <div class="stat-value text-orange-400">{{ stats().totalPayments }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-payments">
+                <mat-icon>verified</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Pagos Aprobados</div>
+                <div class="stat-value text-green-400">{{ stats().paidPayments }}</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon bg-payments">
+                <mat-icon>pending</mat-icon>
+            </div>
+            <div class="stat-content">
+                <div class="stat-label">Pagos Pendientes</div>
+                <div class="stat-value text-red-400">{{ stats().pendingPayments }}</div>
+            </div>
+        </div>
+    </div>
+
+    }
+</div>

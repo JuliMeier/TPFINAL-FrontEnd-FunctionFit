@@ -114,7 +114,12 @@ export const routes: Routes = [
                 path: 'admin/pagos',
                 loadComponent: () => import('./pages/admin/payment-management/payment-management'),
                 canActivate: [roleGuard('Administrador')]
-            }
+            },
+            {
+                path: 'admin/metricas',
+                loadComponent: () => import('./pages/admin/metricas/metricas'),
+                canActivate: [roleGuard('SuperAdministrador')]
+            },
         ]
     },
     { path: '**', redirectTo: 'home' }

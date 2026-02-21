@@ -38,7 +38,7 @@ export class Sidebar {
 
     if (user.role === 'SuperAdministrador') {
       items.push(
-        { label: 'Dashboard', route: '/home-super-admin', icon: 'fa-chart-line' },
+        { label: 'Métricas', route: '/admin/metricas', icon: 'fa-chart-line' },
       );
     }
 
