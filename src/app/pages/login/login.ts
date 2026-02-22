@@ -44,7 +44,7 @@ export default class Login {
     if (success) {
       this.router.navigate(['/role-home']);
     } else {
-      this.toastr.error('Credenciales inválidas.\n\nUsuarios de prueba:\n• cliente@demo.com\n• admin@demo.com\n• superadmin@demo.com\nContraseña: 1234');
+      this.toastr.error('Credenciales inválidas');
     }
   }
 }

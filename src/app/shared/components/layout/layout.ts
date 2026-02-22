@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { Header } from '../header/header';
 import { Sidebar } from '../sidebar/sidebar';
-import { Footer } from '../footer/footer';
 import { RouterOutlet } from '@angular/router';
+import { LoadingBar } from '../loading-bar/loading-bar';
 
 @Component({
   selector: 'app-layout',
-  imports: [Header, Sidebar, Footer, RouterOutlet],
+  imports: [Header, Sidebar, RouterOutlet, LoadingBar],
   templateUrl: './layout.html',
   styles: ``
 })
