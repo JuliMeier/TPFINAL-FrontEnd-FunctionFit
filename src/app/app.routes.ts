@@ -10,7 +10,7 @@ const authGuard = () => {
     if (servicesService.isAuthenticated()) {
         return true;
     } else {
-        router.navigate(['/login']);
+        router.navigate(['/home']);
         return false;
     }
 };

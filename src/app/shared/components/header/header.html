@@ -1,19 +1,34 @@
 <header class="bg-slate-950 p-4 flex items-center justify-between shadow">
   <div></div>
-
   <div class="flex items-center gap-4">
     @if (user(); as u) {
-      <span class="text-white text-lg font-medium hidden sm:block">{{ u.email }}</span>
-      
-      <button 
-        (click)="logout()" 
-        class="text-white hover:text-yellow-400 text-xl transition"
-        title="Cerrar sesión"
-      >
-        <i class="fas fa-sign-out-alt"></i>
+    <div class="flex items-center gap-4">
+      <span class="text-white text-lg font-medium hidden sm:block">
+        {{ u.email }}
+      </span>
+
+      <button mat-icon-button [matMenuTriggerFor]="profileMenu" class="text-white profile-btn" title="Ver perfil">
+        <i class="fas fa-user profile-icon"></i>
       </button>
+    </div>
+
+    <mat-menu #profileMenu="matMenu" class="profile-menu-panel" xPosition="before">
+      <div class="profile-header">
+        <p class="profile-name">
+          {{ u.nombre }} {{ u.apellido }}
+        </p>
+        <p class="profile-role">
+          {{ u.role }}
+        </p>
+      </div>
+
+      <button mat-menu-item (click)="logout()" class="logout-btn">
+        <mat-icon class="text-base">logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </mat-menu>
     } @else {
-      <span class="text-white">Invitado</span>
+    <span class="text-white">Invitado</span>
     }
   </div>
 </header>
