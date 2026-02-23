@@ -19,13 +19,18 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
+      height: 8px; 
       z-index: 9999;
     }
+
     ::ng-deep .mat-mdc-progress-bar {
+      height: 8px !important; 
+      
       .mdc-linear-progress__bar-inner {
         border-color: #facc15 !important;
+        border-top-width: 8px !important; 
       }
+      
       .mdc-linear-progress__buffer-bar {
         background: rgba(250, 204, 21, 0.2) !important;
       }

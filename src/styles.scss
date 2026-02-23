@@ -1,8 +1,6 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// =========================================================
+// 1. CONFIGURACIÓN DE ANGULAR MATERIAL
+// =========================================================
 @use '@angular/material' as mat;
 
 html {
@@ -15,26 +13,19 @@ html {
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
+  color-scheme: dark;
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
 }
 
+// =========================================================
+// 2. CONFIGURACIÓN TAILWIND & VARIABLES GLOBALES
+// =========================================================
 @import "tailwindcss";
 
 @theme {
-  
   --color-gym-dark: #212529;
 }
 
@@ -42,11 +33,17 @@ body {
   color-scheme: dark;
 }
 
+html,
 body {
+  height: 100%;
   margin: 0;
   overflow-x: hidden;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+// =========================================================
+// 3. UTILIDADES EXISTENTES 
+// =========================================================
 .glass-card {
   @apply bg-slate-400/50 backdrop-blur-md border border-slate-800 rounded-xl;
 }
@@ -59,124 +56,101 @@ body {
   @apply bg-slate-800 border border-slate-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all;
 }
 
-html,
-body {
+// =========================================================
+// 4. DIALOGOS DE ANGULAR MATERIAL
+// =========================================================
+
+/* 
+   Asegura que el fondo oscuro (backdrop) cubra todo y tenga prioridad 
+   sobre el sidebar y header (z-index alto) 
+*/
+.cdk-overlay-backdrop {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px);
+  z-index: 1000 !important;
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
 }
 
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+/* Contenedor del diálogo por encima del backdrop */
+.cdk-overlay-pane {
+  z-index: 1001 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
 }
 
-
-.transparent-backdrop {
-  background: transparent !important;   // elimina el overlay negro
-}
-
-
-// Estilo personalizado para modales de FunctionFit (versión clara)
-.ff-confirm-dialog .mat-mdc-dialog-container {
-   background: transparent;
-   padding: 0;
-  
-
-}
-
-.cdk-overlay-backdrop.transparent-backdrop {
-  background: transparent !important;
-}
-
-
-
-
+/* 
+   Superficie del diálogo (la tarjeta del modal) 
+   Forzamos tema oscuro para que coincida con la app 
+*/
 .ff-confirm-dialog .mat-mdc-dialog-surface {
-  background-color: #ffffff;
-  /* blanco */
-  border: 1px solid #e2e8f0;
-  /* gray-200 */
-  border-radius: 1rem;
-  /* rounded-2xl */
-  color: #1e293b;
-  /* slate-800 */
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  padding: 1.5rem;
+  background-color: #1e293b !important;
+  /* Slate-800 */
+  color: #f1f5f9 !important;
+  /* Texto claro */
+  border: 1px solid #334155 !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+  padding: 1.5rem !important;
 }
 
-// Título
+/* Título del diálogo */
 .ff-confirm-dialog .mat-mdc-dialog-title {
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: #1e293b;
-  /* slate-800 */
-  margin-bottom: 0.5rem;
-  padding: 0;
+  font-weight: 700 !important;
+  font-size: 1.25rem !important;
+  color: #f1f5f9 !important;
+  /* Blanco */
+  margin-bottom: 0.5rem !important;
+  padding: 0 !important;
 }
 
-// Contenido
+/* Contenido del diálogo */
 .ff-confirm-dialog .mat-mdc-dialog-content {
-  color: #475569;
-  /* slate-600 */
-  margin-bottom: 1.5rem;
-  padding: 0;
+  color: #94a3b8 !important;
+  /* Slate-400 */
+  margin-bottom: 1.5rem !important;
+  padding: 0 !important;
 }
 
-// Acciones (botones)
+/* Contenedor de acciones (botones) */
 .ff-confirm-dialog .mat-mdc-dialog-actions {
-  padding: 0;
-  justify-content: flex-end;
-  gap: 0.75rem;
+  padding: 0 !important;
+  justify-content: flex-end !important;
+  gap: 0.75rem !important;
 }
 
-// Botón "Cancelar"
+/* Botón "Cancelar" */
 .ff-confirm-dialog .mat-mdc-dialog-actions .mat-mdc-button {
-  color: #475569;
-  /* slate-600 */
-  background: #f1f5f9;
-  /* gray-100 */
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  color: #94a3b8 !important;
+  background: #334155 !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 500 !important;
+  transition: background-color 0.2s !important;
 }
 
 .ff-confirm-dialog .mat-mdc-dialog-actions .mat-mdc-button:hover {
-  background: #e2e8f0;
-  /* gray-200 */
+  background: #475569 !important;
 }
 
-// Botón "Confirmar" (mat-raised-button con color="warn")
+/* Botón "Confirmar" (Warn/Amarillo) */
 .ff-confirm-dialog .mat-mdc-dialog-actions .mat-mdc-raised-button.mat-warn {
-  background: #facc15;
-  /* yellow-400 */
-  color: #0f172a;
-  /* slate-900 */
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  box-shadow: none;
-  transition: background-color 0.2s;
+  background: #facc15 !important;
+  /* Amarillo FunctionFit */
+  color: #0f172a !important;
+  /* Texto oscuro */
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  transition: background-color 0.2s !important;
 }
 
 .ff-confirm-dialog .mat-mdc-dialog-actions .mat-mdc-raised-button.mat-warn:hover {
-  background: #fbbf24;
-  /* yellow-500 */
+  background: #fbbf24 !important;
 }
-
-// .ff-confirm-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
-//   background-color: transparent !important;
-//   --mdc-dialog-container-color: transparent !important;
-//   box-shadow: none !important;
-// }
-
-
-
-.cdk-overlay-backdrop.transparent-backdrop {
-  background: transparent !important;
-  position: fixed !important;
-}
-
-body.dialog-open {
-  filter: blur(5px);
-}
-

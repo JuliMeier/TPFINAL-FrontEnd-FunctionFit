@@ -72,7 +72,8 @@ export default class GymClassesComponent implements OnInit {
         title: 'Confirmar reserva',
         message: '¿Estás seguro de que querés reservar esta clase?'
       },
-      panelClass: 'ff-confirm-dialog'
+      panelClass: 'ff-confirm-dialog',
+      disableClose: false
     });
 
     dialogRef.afterClosed().subscribe(async (result) => {
@@ -86,7 +87,15 @@ export default class GymClassesComponent implements OnInit {
             this.toastr.error(res.message || 'No se pudo reservar', 'Error');
           }
         } catch (err: any) {
-          this.toastr.error(err?.error?.message || 'Error al reservar', 'Error');
+          const backendMessage = typeof err.error === 'string'
+            ? err.error
+            : err.error?.message;
+
+          if (backendMessage && backendMessage.includes('No puede inscribirse según su plan')) {
+            this.toastr.error('Alcanzaste el máximo de reservas para tu plan actual', 'Atención');
+          } else {
+            this.toastr.error(backendMessage || 'Error al reservar', 'Error');
+          }
         }
       }
     });
