@@ -20,7 +20,6 @@ export default class GymClassManagement {
   gymClasses = signal<GymClass[]>([]);
   showForm = signal(false);
   selectedGymClass: GymClass | null = null;
-
   showConfirmDialog = false;
   pendingDeleteId: number | null = null;
 
@@ -41,13 +40,39 @@ export default class GymClassManagement {
     }
   }
 
+  // ✅ AGRUPAR CLASES POR NOMBRE
+  groupedClasses = computed(() => {
+    const allClasses = this.gymClasses();
+    if (!allClasses || allClasses.length === 0) return [];
+
+    const map = new Map<string, {
+      nombre: string;
+      descripcion: string;
+      duracionMinutos: number;
+      imageUrl: string;
+      turnos: GymClass[]
+    }>();
+
+    for (const c of allClasses) {
+      if (!map.has(c.nombre)) {
+        map.set(c.nombre, {
+          nombre: c.nombre,
+          descripcion: c.descripcion,
+          duracionMinutos: c.duracionMinutos,
+          imageUrl: c.imageUrl,
+          turnos: []
+        });
+      }
+      map.get(c.nombre)!.turnos.push(c);
+    }
+
+    return Array.from(map.values());
+  });
+
   filteredGymClasses = computed(() => {
     const term = this.searchTerm().toLowerCase();
     const allClasses = this.gymClasses();
-
-    if (!allClasses || allClasses.length === 0) {
-      return [];
-    }
+    if (!allClasses || allClasses.length === 0) return [];
     return allClasses.filter(c =>
       (c.nombre?.toLowerCase() ?? '').includes(term) ||
       (c.descripcion?.toLowerCase() ?? '').includes(term)
@@ -64,6 +89,12 @@ export default class GymClassManagement {
     this.showForm.set(true);
   }
 
+  // ✅ NUEVA CLASE
+  createNewClass() {
+    this.selectedGymClass = null;
+    this.showForm.set(true);
+  }
+
   confirmDelete(id: number) {
     this.pendingDeleteId = id;
     this.showConfirmDialog = true;
@@ -77,7 +108,7 @@ export default class GymClassManagement {
   async deleteGymClass(id: number | null) {
     if (!id) return;
     try {
-      const res = await this.gymClassService.deleteGymClass(id).toPromise();
+      await this.gymClassService.deleteGymClass(id).toPromise();
       this.toastr.success('Clase eliminada correctamente');
       await this.loadGymClasses();
     } catch (err: any) {
@@ -92,5 +123,18 @@ export default class GymClassManagement {
     this.showForm.set(false);
     this.selectedGymClass = null;
     this.loadGymClasses();
+  }
+
+  // ✅ MÉTODO PARA OBTENER IMAGEN SEGÚN NOMBRE
+  getClassImage(nombre: string): string {
+    const images: { [key: string]: string } = {
+      'Yoga': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=150&fit=crop',
+      'CrossFit': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=150&fit=crop',
+      'Spinning': 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&h=150&fit=crop',
+      'Pilates': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=150&fit=crop',
+      'Boxeo': 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=400&h=150&fit=crop',
+      'Zumba': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=150&fit=crop'
+    };
+    return images[nombre] ?? 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=150&fit=crop';
   }
 }

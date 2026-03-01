@@ -6,7 +6,7 @@ export interface User {
   telefono: string;
   planId: number | null;
   role: 'Socio' | 'Administrador' | 'SuperAdministrador';
-  name?:string
+  name?: string
 }
 
 export const PLAN_CONFIG: Record<number, { label: string; class: string }> = {
@@ -36,6 +36,7 @@ export interface GymClassTurn {
   isReservedByUser: boolean;
   maxCapacity: number;
   currentEnrollments: number;
+  duracionMinutos?: number;
 }
 
 export interface GroupedGymClass {
@@ -139,14 +140,14 @@ export interface PaymentResponse {
   id: number;
   userId: number;
   monto: number;
-  fecha: string;      
+  fecha: string;
   pagado: boolean;
-  
+
   // Campos adicionales necesarios para el Admin
-  title?: string;       
-  metodoPago?: string;  
-  externalReference?: string; 
-  planId?: number;      
+  title?: string;
+  metodoPago?: string;
+  externalReference?: string;
+  planId?: number;
 
 }
 
@@ -164,9 +165,9 @@ export interface UserProfileResponse {
   email: string;
   telefono: string;
   planId: number;
-  
+
   isSubscriptionActive: boolean;
-  subscriptionEndDate: string | null; 
+  subscriptionEndDate: string | null;
   planName: string;
   classLimit: number;
 

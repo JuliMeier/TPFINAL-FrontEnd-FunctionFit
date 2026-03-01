@@ -1,8 +1,7 @@
 <div class="p-4 max-w-[95vw] mx-auto">
-
   <!-- Aviso suscripción no activa -->
   <div *ngIf="!hasActiveSubscription"
-       class="mb-6 p-4 bg-yellow-200 text-yellow-800 rounded-lg text-center font-semibold">
+    class="mb-6 p-4 bg-yellow-200 text-yellow-800 rounded-lg text-center font-semibold">
     No tenés una suscripción activa. No podés reservar clases hasta pagar un plan.
   </div>
 
@@ -26,17 +25,15 @@
   </div>
 
   <!-- Clases -->
-  <div *ngIf="!loading && !error"
-     class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 max-w-6xl mx-auto">
+  <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 max-w-6xl mx-auto">
 
-    <div *ngFor="let group of groupedClasses"
-         class="bg-slate-700 rounded-2xl shadow-lg overflow-hidden
-                border border-white/10
-                hover:bg-slate-800 hover:scale-[1.015] transition-all duration-200">
+    <div *ngFor="let group of groupedClasses" class="bg-slate-700 rounded-2xl shadow-lg overflow-hidden
+      border border-white/10
+      hover:bg-slate-800 hover:scale-[1.015] transition-all duration-200">
 
       <!-- Imagen -->
       <img [src]="getClassImage(group.nombre)" [alt]="group.nombre"
-           class="h-24 w-full object-cover opacity-90 grayscale hover:grayscale-0 transition-all duration-300"/>
+        class="h-24 w-full object-cover opacity-90 grayscale hover:grayscale-0 transition-all duration-300" />
 
       <div class="p-4 flex flex-col text-center">
         <h3 class="text-base font-semibold text-white mb-1">{{ group.nombre }}</h3>
@@ -45,46 +42,40 @@
         <!-- Turnos -->
         <div class="space-y-2 flex-1">
           <div *ngFor="let turno of group.turnos"
-               class="bg-slate-600/50 rounded-lg p-2 flex flex-col items-center gap-1">
+            class="bg-slate-600/50 rounded-lg p-2 flex flex-col items-center gap-1">
 
             <div class="text-sm text-gray-300 flex items-center gap-2">
               <i class="far fa-calendar-alt text-blue-700"></i>
               {{ getDayName(turno.dia) }} · {{ turno.hora }}
             </div>
 
-            <span class="text-xs font-medium"
-                  [ngClass]="{
-                    'text-red-500': turno.currentEnrollments >= turno.maxCapacity,
-                    'text-yellow-400': turno.maxCapacity - turno.currentEnrollments === 1,
-                    'text-green-400': turno.maxCapacity - turno.currentEnrollments > 1
-                  }">
+            <span class="text-xs font-medium" [ngClass]="{
+                'text-red-500': turno.currentEnrollments >= turno.maxCapacity,
+                'text-yellow-400': turno.maxCapacity - turno.currentEnrollments === 1,
+                'text-green-400': turno.maxCapacity - turno.currentEnrollments > 1
+              }">
               {{ getAvailabilityMessage(turno) }}
             </span>
-        <button *ngIf="!turno.isReservedByUser"
-                (click)="reserve(turno.id)"
-                [disabled]="!canReserve() || turno.currentEnrollments >= turno.maxCapacity"
-                class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
-                      bg-slate-500 text-white
-                      hover:bg-yellow-400 hover:text-black
-                      disabled:bg-gray-600 disabled:text-gray-400">
-          Reservar
-        </button>
 
-        <button *ngIf="turno.isReservedByUser"
-                (click)="cancel(turno.id)"
-                class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
-                      bg-red-600 text-white hover:bg-red-700">
-          Cancelar
-        </button>
+            <div class="text-xs text-gray-400 flex items-center gap-1">
+              <i class="far fa-clock"></i>
+              {{ turno.duracionMinutos }} min
+            </div>
 
+            <button *ngIf="!turno.isReservedByUser" (click)="reserve(turno.id)"
+              [disabled]="!canReserve() || turno.currentEnrollments >= turno.maxCapacity" class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
+              bg-slate-500 text-white
+              hover:bg-yellow-400 hover:text-black
+              disabled:bg-gray-600 disabled:text-gray-400">
+              Reservar
+            </button>
+
+            <button *ngIf="turno.isReservedByUser" (click)="cancel(turno.id)" class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
+              bg-red-600 text-white hover:bg-red-700">
+              Cancelar
+            </button>
           </div>
         </div>
-
-        <div class="mt-3 pt-3 border-t border-white/10 text-sm text-gray-400 flex items-center justify-center gap-2">
-          <i class="far fa-clock text-blue-700"></i>
-          {{ group.duracionMinutos }} min
-        </div>
-
       </div>
     </div>
   </div>

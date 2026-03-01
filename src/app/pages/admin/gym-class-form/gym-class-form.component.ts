@@ -20,14 +20,16 @@ export class GymClassFormComponent implements OnInit {
   @Output() onClose = new EventEmitter<void>();
 
   days = [
-    { value: 0, label: 'Domingo' },
     { value: 1, label: 'Lunes' },
     { value: 2, label: 'Martes' },
     { value: 3, label: 'Miércoles' },
     { value: 4, label: 'Jueves' },
     { value: 5, label: 'Viernes' },
-    { value: 6, label: 'Sábado' }
+    { value: 6, label: 'Sábado' },
+    { value: 7, label: 'Domingo' }
   ];
+
+  existingClasses: GymClass[] = [];
 
   form = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
@@ -36,18 +38,33 @@ export class GymClassFormComponent implements OnInit {
     imageUrl: ['Clase', [Validators.required]],
     dia: [1, [Validators.required]],
     hora: ['08:00', [Validators.required]],
-    maxCapacity: [10, [Validators.required, Validators.min(1), Validators.max(50)]]
+    maxCapacity: [15, [Validators.required, Validators.min(1), Validators.max(50)]]
   });
 
   isLoading = false;
   isEditMode = false;
+  selectedExistingClassId: number | null = null;
 
-  constructor() {
+  ngOnInit() {
+    this.loadExistingClasses();
     this.loadGymClassData();
   }
 
-  ngOnInit() {
-    this.loadGymClassData();
+  async loadExistingClasses() {
+    try {
+      const classes = await this.gymClassService.getAllGymClasses().toPromise();
+      if (classes) {
+        const uniqueNames = new Map<string, GymClass>();
+        classes.forEach(c => {
+          if (!uniqueNames.has(c.nombre)) {
+            uniqueNames.set(c.nombre, c);
+          }
+        });
+        this.existingClasses = Array.from(uniqueNames.values());
+      }
+    } catch (err) {
+      console.error('Error cargando clases existentes:', err);
+    }
   }
 
   loadGymClassData() {
@@ -65,11 +82,40 @@ export class GymClassFormComponent implements OnInit {
     }
   }
 
-  timeValidator(control: any) {
-    const value = control.value;
-    if (!value) return null;
-    const regex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-    return regex.test(value) ? null : { invalidTime: true };
+  onExistingClassChange(event: Event) {
+    const selectElement = event.target as HTMLSelectElement;
+    const classId = Number(selectElement.value);
+
+    if (classId && classId > 0) {
+      const classToCopy = this.existingClasses.find(c => c.id === classId);
+      if (classToCopy) {
+        this.selectedExistingClassId = classId;
+        this.form.patchValue({
+          nombre: classToCopy.nombre,
+          descripcion: classToCopy.descripcion,
+          duracionMinutos: classToCopy.duracionMinutos,
+          imageUrl: classToCopy.nombre
+        });
+      }
+    } else {
+      this.selectedExistingClassId = null;
+      this.form.patchValue({
+        nombre: '',
+        descripcion: '',
+        duracionMinutos: 60,
+        imageUrl: 'Clase'
+      });
+    }
+  }
+
+  onNombreInput() {
+    if (this.selectedExistingClassId) {
+      this.selectedExistingClassId = null;
+      const select = document.querySelector('select') as HTMLSelectElement;
+      if (select) {
+        select.value = '0';
+      }
+    }
   }
 
   async onSubmit() {
@@ -91,12 +137,13 @@ export class GymClassFormComponent implements OnInit {
         await this.gymClassService.createGymClass(formData).toPromise();
         this.toastr.success('Clase creada correctamente');
       }
-
       this.onClose.emit();
     } catch (err: any) {
-      const errorMessage = this.isEditMode ? 'Error al actualizar la clase' : 'Error al crear la clase';
-      this.toastr.error(errorMessage);
       console.error(err);
+      const errorMessage = err?.error?.errors
+        ? Object.values(err.error.errors).flat().join(', ')
+        : (this.isEditMode ? 'Error al actualizar la clase' : 'Error al crear la clase');
+      this.toastr.error(errorMessage);
     } finally {
       this.isLoading = false;
     }

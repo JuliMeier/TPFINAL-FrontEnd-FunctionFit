@@ -19,22 +19,19 @@ export default class GymClassesComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  // Inyectamos servicios
   private servicesService = inject(ServicesService);
   private paymentService = inject(PaymentService);
   private authService = inject(AuthService);
   private toastr = inject(ToastrService);
   private dialog = inject(MatDialog);
 
-  // Estado de suscripción
   hasActiveSubscription = false;
 
   ngOnInit(): void {
-    this.loadPayments(); // cargamos pagos primero
+    this.loadPayments();
     this.loadClasses();
   }
 
-  // Cargamos y validamos la suscripción activa del usuario
   async loadPayments() {
     try {
       const userId = this.authService.getUserId();
@@ -43,10 +40,8 @@ export default class GymClassesComponent implements OnInit {
         this.hasActiveSubscription = false;
         return;
       }
-
       const subscription = await this.paymentService.getActiveSubscription(userId).toPromise();
       this.hasActiveSubscription = subscription && subscription.isActive;
-
       if (!this.hasActiveSubscription) {
         this.toastr.info('No tenés una suscripción activa. Para acceder a las clases, debes pagar un plan.', 'Suscripción requerida');
       }
@@ -56,7 +51,6 @@ export default class GymClassesComponent implements OnInit {
     }
   }
 
-  // Bloqueo de reserva si no hay suscripción activa
   canReserve(): boolean {
     return this.hasActiveSubscription;
   }
@@ -72,8 +66,7 @@ export default class GymClassesComponent implements OnInit {
         title: 'Confirmar reserva',
         message: '¿Estás seguro de que querés reservar esta clase?'
       },
-      panelClass: 'ff-confirm-dialog',
-      disableClose: false
+      panelClass: 'ff-confirm-dialog'
     });
 
     dialogRef.afterClosed().subscribe(async (result) => {
@@ -87,15 +80,7 @@ export default class GymClassesComponent implements OnInit {
             this.toastr.error(res.message || 'No se pudo reservar', 'Error');
           }
         } catch (err: any) {
-          const backendMessage = typeof err.error === 'string'
-            ? err.error
-            : err.error?.message;
-
-          if (backendMessage && backendMessage.includes('No puede inscribirse según su plan')) {
-            this.toastr.error('Alcanzaste el máximo de reservas para tu plan actual', 'Atención');
-          } else {
-            this.toastr.error(backendMessage || 'Error al reservar', 'Error');
-          }
+          this.toastr.error(err?.error?.message || 'Error al reservar', 'Error');
         }
       }
     });
@@ -155,26 +140,32 @@ export default class GymClassesComponent implements OnInit {
 
   private groupClasses(classes: GymClass[]): GroupedGymClass[] {
     const map = new Map<string, GroupedGymClass>();
+
     for (const c of classes) {
       if (!map.has(c.nombre)) {
         map.set(c.nombre, {
           nombre: c.nombre,
           descripcion: c.descripcion,
-          duracionMinutos: c.duracionMinutos,
+          duracionMinutos: c.duracionMinutos, 
           imageUrl: c.imageUrl,
           turnos: []
         });
       }
+
+
       const turno: GymClassTurn = {
         id: c.id,
         dia: c.dia,
         hora: c.hora,
         isReservedByUser: c.isReservedByUser,
         maxCapacity: c.maxCapacity,
-        currentEnrollments: c.currentEnrollments
+        currentEnrollments: c.currentEnrollments,
+        duracionMinutos: c.duracionMinutos
       };
+
       map.get(c.nombre)!.turnos.push(turno);
     }
+
     return Array.from(map.values());
   }
 
@@ -190,16 +181,15 @@ export default class GymClassesComponent implements OnInit {
     return `Quedan ${available} lugares`;
   }
 
-  // En tu componente o como helper
-getClassImage(nombre: string): string {
-  const images: { [key: string]: string } = {
-    'Yoga': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=150&fit=crop',
-    'CrossFit': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=150&fit=crop',
-    'Spinning': 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&h=150&fit=crop',
-    'Pilates': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=150&fit=crop',
-    'Boxeo': 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=400&h=150&fit=crop',
-    'Natación': 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&h=150&fit=crop'
-  };
-  return images[nombre] ?? 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=150&fit=crop';
-}
+  getClassImage(nombre: string): string {
+    const images: { [key: string]: string } = {
+      'Yoga': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=150&fit=crop',
+      'CrossFit': 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=150&fit=crop',
+      'Spinning': 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&h=150&fit=crop',
+      'Pilates': 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=150&fit=crop',
+      'Boxeo': 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=400&h=150&fit=crop',
+      'Natación': 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&h=150&fit=crop'
+    };
+    return images[nombre] ?? 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=150&fit=crop';
+  }
 }
