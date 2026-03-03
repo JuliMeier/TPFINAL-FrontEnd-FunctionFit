@@ -40,8 +40,11 @@ export default class GymClassesComponent implements OnInit {
         this.hasActiveSubscription = false;
         return;
       }
-      const subscription = await this.paymentService.getActiveSubscription(userId).toPromise();
-      this.hasActiveSubscription = subscription && subscription.isActive;
+
+      const response = await this.paymentService.getActiveSubscription(userId).toPromise();
+
+      this.hasActiveSubscription = response?.hasActiveSubscription ?? false;
+
       if (!this.hasActiveSubscription) {
         this.toastr.info('No tenés una suscripción activa. Para acceder a las clases, debes pagar un plan.', 'Suscripción requerida');
       }

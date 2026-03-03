@@ -10,7 +10,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-pagos',
   standalone: true,
-  imports: [CommonModule,RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './pagos.html'
 })
 export default class PagosComponent implements OnInit {
@@ -37,19 +37,16 @@ export default class PagosComponent implements OnInit {
   checkCurrentSubscription() {
     try {
       const userId = this.authService.getUserId();
-      
-      // Si no hay ID válido, no hacemos la llamada HTTP
       if (userId === 0) {
         this.subscription.set(null);
         return;
       }
-      
       this.paymentService.getActiveSubscription(userId).subscribe({
-        next: (sub) => {
-          console.log('Respuesta del servidor:', sub);
-          // Si la suscripción existe y está activa (o vence en el futuro)
-          if (sub && sub.isActive) {
-            this.subscription.set(sub);
+        next: (response) => {
+          if (response?.hasActiveSubscription && response.subscription?.isActive) {
+            this.subscription.set(response.subscription);
+          } else {
+            this.subscription.set(null);
           }
         }
       });
@@ -79,7 +76,7 @@ export default class PagosComponent implements OnInit {
   }
 
   confirmarPagoEnServidor(paymentId: string) {
-   
+
     if (!paymentId) {
       this.toastr.warning('No se recibió el ID del pago. No se puede confirmar.');
       return;
@@ -107,7 +104,7 @@ export default class PagosComponent implements OnInit {
       next: (res) => {
         this.loading.set(false);
         window.open(res.initPoint, '_blank');
-        this.esperandoConfirmacion.set(true); 
+        this.esperandoConfirmacion.set(true);
       },
       error: () => this.loading.set(false)
     });
