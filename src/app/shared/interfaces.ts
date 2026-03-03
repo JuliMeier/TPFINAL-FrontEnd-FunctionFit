@@ -16,6 +16,12 @@ export const PLAN_CONFIG: Record<number, { label: string; class: string }> = {
   3: { label: 'Elite', class: 'text-purple-800' }
 };
 
+export const ROLE_CONFIG: Record<number, { label: string; class: string; icon: string }> = {
+  1: { label: 'Socio', class: 'bg-green-500/10 text-green-400 border border-green-500/30', icon: 'fas fa-user' },
+  2: { label: 'Administrador', class: 'bg-blue-500/10 text-blue-400 border border-blue-500/30', icon: 'fas fa-user-shield' },
+  3: { label: 'Super Admin', class: 'bg-purple-500/10 text-purple-400 border border-purple-500/30', icon: 'fas fa-crown' }
+};
+
 export interface GymClass {
   id: number;
   nombre: string;

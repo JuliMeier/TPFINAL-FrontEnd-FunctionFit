@@ -59,6 +59,7 @@
         <tr>
           <th class="p-6 text-yellow-400 text-lg font-semibold">Usuario</th>
           <th class="p-6 text-yellow-400 text-lg font-semibold">Contacto</th>
+          <th class="p-6 text-yellow-400 text-lg font-semibold">Rol</th>
           <th class="p-6 text-yellow-400 text-lg font-semibold">Plan</th>
           <th class="p-6 text-yellow-400 text-lg font-semibold text-right">Acciones</th>
         </tr>
@@ -94,33 +95,69 @@
             </p>
           </td>
 
+          <!-- ROL -->
+          <td class="p-6">
+            <span class="px-3 py-1.5 rounded text-sm font-semibold
+                          transition-all duration-200 cursor-default" [ngClass]="roleConfig[user.roleId]?.class">
+              <i [class]="roleConfig[user.roleId]?.icon" class="mr-1.5"></i>
+              {{ roleConfig[user.roleId]?.label ?? 'Sin Rol' }}
+            </span>
+          </td>
+
           <!-- PLAN -->
           <td class="p-6">
-            @if (user.roleId !== 1) {
-            <span
-              class="px-3 py-1  text-xs font-black bg-slate-800 text-white border border-slate-700 uppercase tracking-widest">
-              <i class="fas fa-user-shield mr-1"></i> Admin
-            </span>
-            } @else {
-            <span class="px-3 py-1  text-xs font-bold uppercase tracking-wide"
+            @if (user.roleId === 1) {
+            <!-- ⬅️ CASO ESPECIAL: Usuario ID 1 (cliente@demo.com) -->
+            @if (user.id === 1) {
+            @if (demoSubscriptionActive()) {
+            <!-- Tiene suscripción activa real -->
+            <span class="px-3 py-1 text-xs font-bold uppercase tracking-wide"
               [ngClass]="planConfig[user.planId ?? 0].class">
               {{ planConfig[user.planId ?? 0].label }}
+            </span>
+            } @else {
+            <!-- Sin suscripción activa (seed original) -->
+            <span class="px-3 py-1 text-xs font-bold uppercase tracking-wide
+          bg-red-500/10 text-red-400 border border-red-500/30">
+              <i class="fas fa-times-circle mr-1"></i>
+              Sin Suscripción Activa
+            </span>
+            }
+            } @else {
+            <!-- ⬅️ RESTO DE LOS USUARIOS: lógica normal por planId -->
+            @if (user.planId) {
+            <span class="px-3 py-1 text-xs font-bold uppercase tracking-wide" [ngClass]="planConfig[user.planId].class">
+              {{ planConfig[user.planId].label }}
+            </span>
+            } @else {
+            <span class="px-3 py-1 text-xs font-bold uppercase tracking-wide
+          bg-red-500/10 text-red-400 border border-red-500/30">
+              <i class="fas fa-times-circle mr-1"></i>
+              Sin Suscripción Activa
+            </span>
+            }
+            }
+            } @else {
+            <!-- Admin (2) o SuperAdmin (3): No corresponde -->
+            <span class="px-3 py-1 text-xs font-black
+      bg-slate-800 text-slate-400
+      border border-slate-700
+      uppercase tracking-widest">
+              <i class="fas fa-ban mr-1"></i> No corresponde
             </span>
             }
           </td>
 
-          <!-- ACCIONES -->
+          <!-- ACCIONES (ICONOS) -->
           <td class="p-6 text-right space-x-4">
-            <button type="button" (click)="editUser(user)" class="text-slate-800 hover:text-yellow-400 
-                  font-medium text-base transition-colors duration-200">
-              Editar
+            <button type="button" (click)="editUser(user)" class="text-blue-400 hover:text-blue-300 
+                font-medium text-base transition-colors duration-200" title="Editar usuario">
+              <i class="fas fa-edit text-xl"></i>
             </button>
-
-            <button type="button" (click)="confirmDelete(user.id)" class="text-red-600 font-medium text-base
-                     hover:text-red-500 transition">
-              Eliminar
+            <button type="button" (click)="confirmDelete(user.id)" class="text-red-500 hover:text-red-400 
+                font-medium text-base transition-colors duration-200" title="Eliminar usuario">
+              <i class="fas fa-trash-alt text-xl"></i>
             </button>
-
           </td>
 
         </tr>
