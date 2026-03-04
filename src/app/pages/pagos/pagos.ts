@@ -114,7 +114,7 @@ export default class PagosComponent implements OnInit {
     const details = {
       [TypePlan.Basic]: { icon: '🚀', desc: '5 clases mensuales' },
       [TypePlan.Premium]: { icon: '⭐', desc: '10 clases mensuales' },
-      [TypePlan.Elite]: { icon: '👑', desc: 'Clases ilimitadas' }
+      [TypePlan.Elite]: { icon: '👑', desc: '15 clases mensuales' }
     };
     return details[tipo];
   }
