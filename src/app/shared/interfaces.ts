@@ -150,8 +150,10 @@ export interface PaymentResponse {
   pagado: boolean;
 
   // Campos adicionales necesarios para el Admin
-  title?: string;
+  userName?: string;
+  userEmail?: string;
   metodoPago?: string;
+  title?: string;
   externalReference?: string;
   planId?: number;
 

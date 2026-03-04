@@ -35,12 +35,15 @@ export default class PaymentManagement implements OnInit {
   };
 
   filteredPayments = computed(() => {
-  const term = this.searchTerm().toLowerCase().trim();
-  if (!term) return this.payments();
-  return this.payments().filter(p =>
-    p.userId.toString().includes(term)
-  );
-});
+    const term = this.searchTerm().toLowerCase().trim();
+    if (!term) return this.payments();
+
+    // 🔹 BUSCAR POR NOMBRE O EMAIL (no por userId)
+    return this.payments().filter(p =>
+      p.userName?.toLowerCase().includes(term) ||
+      p.userEmail?.toLowerCase().includes(term)
+    );
+  });
 
   updateSearch(event: Event) {
     const value = (event.target as HTMLInputElement).value;
@@ -58,7 +61,9 @@ export default class PaymentManagement implements OnInit {
   async loadUsers() {
     try {
       const res = await this.adminUserService.getAllUsers();
-      this.users.set(res);
+      // 🔹 FILTRAR SOLO SOCIOS (roleId = 1)
+      const socios = res.filter(u => u.roleId === 1);
+      this.users.set(socios);
     } catch (err) {
       console.error('Error cargando usuarios:', err);
     }
@@ -67,7 +72,7 @@ export default class PaymentManagement implements OnInit {
   async loadPlans() {
     try {
       const res = await firstValueFrom(this.planService.getAllPlans());
-      
+
       this.plans.set(res);
     } catch (err) {
       console.error('Error cargando planes:', err);
@@ -81,18 +86,18 @@ export default class PaymentManagement implements OnInit {
   }
 
   onPlanChange() {
-    
+
     const selectedPlan = this.plans().find(p => p.id == this.manualCharge.planId);
-    
+
     if (selectedPlan) {
-      
+
       this.manualCharge.monto = selectedPlan.precio || selectedPlan.price || 0;
       console.log('Monto detectado:', this.manualCharge.monto);
     }
   }
 
   onSubmitManual() {
-    
+
     if (!this.manualCharge.userId || !this.manualCharge.planId || this.manualCharge.monto <= 0) {
       this.toastr.warning('Por favor, selecciona un usuario y un plan válidos.');
       return;
@@ -107,25 +112,25 @@ export default class PaymentManagement implements OnInit {
       },
       error: (err) => {
         console.error('Error en cargo manual:', err);
-       
-      let errorMessage = 'No se pudo registrar el pago';
-      
-      if (err.error && typeof err.error === 'string') {
-        
-        if (err.error.includes("El usuario ya tiene una suscripción activa")) {
-          errorMessage = "El usuario ya tiene una suscripción activa.";
-        } else {
-          errorMessage = err.error;
+
+        let errorMessage = 'No se pudo registrar el pago';
+
+        if (err.error && typeof err.error === 'string') {
+
+          if (err.error.includes("El usuario ya tiene una suscripción activa")) {
+            errorMessage = "El usuario ya tiene una suscripción activa.";
+          } else {
+            errorMessage = err.error;
+          }
+        } else if (err.error?.message) {
+
+          errorMessage = err.error.message;
         }
-      } else if (err.error?.message) {
-        
-        errorMessage = err.error.message;
+
+
+        this.toastr.error(errorMessage, 'Operación no permitida');
       }
 
-      
-      this.toastr.error(errorMessage, 'Operación no permitida');
-    }
-      
     });
   }
 }

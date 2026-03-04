@@ -8,126 +8,118 @@
   <!-- Formulario Cobro Manual -->
 
 
-  <div class="w-full p-8 relative rounded-2xl bg-blue-500/10 border border-blue-400/30 backdrop-blur-xl shadow-2xl shadow-blue-500/20">
-  
-  <h2 class="text-2xl font-bold text-slate-800 mb-6">Registrar Cobro Manual</h2>
+  <div
+    class="w-full p-8 relative rounded-2xl bg-blue-500/10 border border-blue-400/30 backdrop-blur-xl shadow-2xl shadow-blue-500/20">
 
-  <form (ngSubmit)="onSubmitManual()" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Registrar Cobro Manual</h2>
 
-    <div>
-      <label class="block text-sm font-medium text-zinc-400 mb-1">Seleccionar Socio</label>
-      <select [(ngModel)]="manualCharge.userId" name="userId" 
-              class="bg-slate-800 border border-slate-700 text-white rounded-xl p-3 w-full focus:ring-2 focus:ring-blue-500 outline-none">
-        <option [value]="null" disabled>Elegir socio...</option>
-        @for (user of users(); track user.id) {
+    <form (ngSubmit)="onSubmitManual()" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+
+      <div>
+        <label class="block text-sm font-medium text-zinc-400 mb-1">Seleccionar Socio</label>
+        <select [(ngModel)]="manualCharge.userId" name="userId"
+          class="bg-slate-800 border border-slate-700 text-white rounded-xl p-3 w-full focus:ring-2 focus:ring-blue-500 outline-none">
+          <option [value]="null" disabled>Elegir socio...</option>
+          @for (user of users(); track user.id) {
           <option [value]="user.id">
-            {{ user.nombre }} {{ user.apellido }} (ID: {{ user.id }})
+            {{ user.nombre }} {{ user.apellido }}
           </option>
-        }
-      </select>
-    </div>
+          }
+        </select>
+      </div>
 
-    <div>
-      <label class="block text-sm font-medium text-zinc-400 mb-1">Plan</label>
-      <select [(ngModel)]="manualCharge.planId" 
-              (change)="onPlanChange()" 
-              name="planId" 
-              class="bg-slate-800 border border-slate-700 text-white rounded-xl p-3 w-full focus:ring-2 focus:ring-blue-500 outline-none">
-        <option [value]="null" disabled>Seleccionar plan...</option>
-        @for (plan of plans(); track plan.id) {
-          <option [value]="plan.id">{{ plan.tipo === 1 ? 'Basic' : plan.tipo === 2 ? 'Premium' : 'Elite'  }}</option>
-        }
-      </select>
-    </div>
+      <div>
+        <label class="block text-sm font-medium text-zinc-400 mb-1">Plan</label>
+        <select [(ngModel)]="manualCharge.planId" (change)="onPlanChange()" name="planId"
+          class="bg-slate-800 border border-slate-700 text-white rounded-xl p-3 w-full focus:ring-2 focus:ring-blue-500 outline-none">
+          <option [value]="null" disabled>Seleccionar plan...</option>
+          @for (plan of plans(); track plan.id) {
+          <option [value]="plan.id">{{ plan.tipo === 1 ? 'Basic' : plan.tipo === 2 ? 'Premium' : 'Elite' }}</option>
+          }
+        </select>
+      </div>
 
-    <div>
-      <label class="block text-sm font-medium text-zinc-400 mb-1">Monto ($)</label>
-      <input type="number" 
-             [(ngModel)]="manualCharge.monto" 
-             name="monto"
-             readonly
-             class="bg-slate-900/50 border border-slate-700 text-yellow-400 font-bold rounded-xl p-3 w-full cursor-not-allowed"
-             placeholder="0.00">
-    </div>
+      <div>
+        <label class="block text-sm font-medium text-zinc-400 mb-1">Monto ($)</label>
+        <input type="number" [(ngModel)]="manualCharge.monto" name="monto" readonly
+          class="bg-slate-900/50 border border-slate-700 text-yellow-400 font-bold rounded-xl p-3 w-full cursor-not-allowed"
+          placeholder="0.00">
+      </div>
 
-    <button type="submit"
-            [disabled]="!manualCharge.userId || !manualCharge.planId"
-            class="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-yellow-500/20 disabled:opacity-30">
-      Registrar Pago
-    </button>
+      <button type="submit" [disabled]="!manualCharge.userId || !manualCharge.planId"
+        class="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-yellow-500/20 disabled:opacity-30">
+        Registrar Pago
+      </button>
 
-  </form>
-</div>
+    </form>
+  </div>
 
   <!-- Tabla Historial -->
   <div class="glass-card overflow-hidden">
-
     <div class="flex justify-between items-center p-6 border-b border-slate-800">
       <h2 class="text-xl font-bold text-slate-800">Historial Global de Pagos</h2>
-      <input type="text" placeholder="Buscar por User ID..."
-             (input)="updateSearch($event)"
-             class="input-field max-w-xs text-base py-2.5">
+      <input type="text" placeholder="Buscar por nombre o email..." (input)="updateSearch($event)"
+        class="input-field max-w-xs text-base py-2.5">
     </div>
-
     <table class="w-full text-left border-collapse text-base">
-
       <thead class="bg-slate-800">
         <tr>
-          <th class="p-6 text-yellow-400 text-lg font-semibold">ID</th>
+          <!-- ❌ ELIMINADA COLUMNA ID -->
           <th class="p-6 text-yellow-400 text-lg font-semibold">Usuario</th>
+          <th class="p-6 text-yellow-400 text-lg font-semibold">Email</th>
           <th class="p-6 text-yellow-400 text-lg font-semibold">Método de pago</th>
           <th class="p-6 text-yellow-400 text-lg font-semibold">Monto</th>
           <th class="p-6 text-yellow-400 text-lg font-semibold">Fecha</th>
-          
         </tr>
       </thead>
-
       <tbody class="divide-y divide-slate-800">
         @for (payment of filteredPayments(); track payment.id) {
-          <tr class="hover:bg-slate-800/30 transition-colors duration-200">
-
-            <td class="p-6 font-mono text-slate-400">#{{ payment.id }}</td>
-
-            <td class="p-6">
-              <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full bg-blue-500/20
+        <tr class="hover:bg-slate-800/30 transition-colors duration-200">
+          <!-- ✅ MOSTRAR NOMBRE DEL USUARIO (sin ID) -->
+          <td class="p-6">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-blue-500/20
                             flex items-center justify-center
                             text-blue-400 font-bold text-lg
                             border border-blue-500/30">
-                  {{ payment.userId }}
-                </div>
-                <p class="font-semibold text-lg">User ID: {{ payment.userId }}</p>
+                {{ payment.userName?.charAt(0) ?? 'U' }}
               </div>
-            </td>
+              <div>
+                <p class="font-semibold text-lg text-slate-800">
+                  {{ payment.userName ?? 'Usuario sin nombre' }}
+                </p>
+              </div>
+            </div>
+          </td>
 
-            <td class="p-6">
-              <span class="px-3 py-1.5 rounded text-sm font-semibold
-                           bg-yellow-400/20 text-slate-800
-                           transition-all duration-200
-                           hover:bg-yellow-400 hover:text-slate-900
-                           hover:shadow-md hover:shadow-yellow-500/30
-                           cursor-default">
-                {{ payment.metodoPago || 'Efectivo' }}
-              </span>
-            </td>
+          <!-- ✅ EMAIL: Columna separada -->
+          <td class="p-6 text-slate-800">
+            {{ payment.userEmail ?? 'Sin email' }}
+          </td>
 
-            <td class="p-6 text-slate-800">${{ payment.monto }}</td>
-
-            <td class="p-6 text-slate-800 text-sm">
-              {{ payment.fecha | date:'dd/MM/yyyy HH:mm' }}
-            </td>
-
-
-          </tr>
+          <td class="p-6">
+            <span class="px-3 py-1.5 rounded text-sm font-semibold
+                        bg-yellow-400/20 text-slate-800
+                        transition-all duration-200
+                        hover:bg-yellow-400 hover:text-slate-900
+                        hover:shadow-md hover:shadow-yellow-500/30
+                        cursor-default">
+              {{ payment.metodoPago ?? 'Efectivo' }}
+            </span>
+          </td>
+          <td class="p-6 text-slate-800">${{ payment.monto }}</td>
+          <td class="p-6 text-slate-800 text-sm">
+            {{ payment.fecha | date:'dd/MM/yyyy HH:mm' }}
+          </td>
+        </tr>
         } @empty {
-          <tr>
-            <td colspan="6" class="p-16 text-center text-slate-500 italic text-lg">
-              No se encontraron pagos registrados.
-            </td>
-          </tr>
+        <tr>
+          <td colspan="5" class="p-16 text-center text-slate-500 italic text-lg">
+            No se encontraron pagos registrados.
+          </td>
+        </tr>
         }
       </tbody>
-
     </table>
   </div>
 
