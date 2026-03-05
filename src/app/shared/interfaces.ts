@@ -195,3 +195,34 @@ export interface PlanResponse {
   tipo: TypePlan;
   precio: number;
 }
+
+export interface EnrollmentResponse {
+  success: boolean;
+  message: string;
+  gymClassId?: number;
+  isReserved?: boolean;
+  currentEnrollments?: number;
+  maxCapacity?: number;
+}
+
+export interface GymClassSummary {
+  id: number;
+  nombre: string;
+  dia: number;
+  hora: string;
+}
+
+export interface UserProfileResponse {
+  id: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  planId: number;
+  isSubscriptionActive: boolean;
+  subscriptionEndDate: string | null;
+  planName: string;
+  classLimit: number;
+  enrolledClassesCount: number;
+  enrolledClasses: GymClassSummary[];
+}

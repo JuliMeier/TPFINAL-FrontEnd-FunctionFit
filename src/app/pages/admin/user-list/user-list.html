@@ -154,6 +154,13 @@
                 font-medium text-base transition-colors duration-200" title="Editar usuario">
               <i class="fas fa-edit text-xl"></i>
             </button>
+              @if (user.roleId === 1) {
+              <button type="button" (click)="viewUserClasses(user)"
+                class="text-purple-400 hover:text-purple-300 font-medium text-base transition-colors duration-200"
+                title="Ver clases del socio">
+                <i class="fas fa-calendar-check text-xl"></i>
+              </button>
+              }
             @if (user.id > 3) {
             <button type="button" (click)="confirmDelete(user.id)" class="text-red-500 hover:text-red-400
           font-medium text-base transition-colors duration-200" title="Eliminar usuario">

@@ -1,12 +1,13 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { ApiResponse, CreateUserByAdminRequest, UpdateUserByAdminRequest } from '../shared/interfaces';
+import { ApiResponse, CreateUserByAdminRequest, EnrollmentResponse, UpdateUserByAdminRequest } from '../shared/interfaces';
 import { environment } from '../../environments/environment.development';
 
 @Injectable({ providedIn: 'root' })
 export class AdminUserService {
   private API_URL = environment.apiUrl + '/admin/user';
+  private ENROLLMENT_URL = environment.apiUrl + '/Enrollment';
   private http = inject(HttpClient);
 
   async createUser(data: CreateUserByAdminRequest): Promise<ApiResponse> {
@@ -55,4 +56,27 @@ export class AdminUserService {
     );
   }
 
+  async getUserProfile(userId: number): Promise<any> {
+    try {
+      return await firstValueFrom(
+        this.http.get<any>(`${this.API_URL}/profile/${userId}`)
+      );
+    } catch (error: any) {
+      throw error.error?.message || 'Error al obtener perfil del usuario';
+    }
+  }
+
+  // ✅ NUEVO: Dar de baja a usuario de una clase
+  async unenrollUser(userId: number, gymClassId: number): Promise<EnrollmentResponse> {
+    try {
+      return await firstValueFrom(
+        this.http.request<EnrollmentResponse>('delete',
+          `${this.ENROLLMENT_URL}/unenroll`,
+          { body: { userId, gymClassId } }
+        )
+      );
+    } catch (error: any) {
+      throw error.error?.message || 'Error al dar de baja de la clase';
+    }
+  }
 }

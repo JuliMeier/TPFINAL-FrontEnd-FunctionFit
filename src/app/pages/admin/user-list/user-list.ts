@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { PLAN_CONFIG, ROLE_CONFIG } from '../../../shared/interfaces';
 import { PaymentService } from '../../../services/payment.service';
+import { UserClassesModalComponent } from './user-classes-modal/user-classes-modal.component';
 
 @Component({
   selector: 'app-user-list',
@@ -107,6 +108,26 @@ export default class UserList {
       this.showConfirmDialog = false;
       this.pendingDeleteId = null;
     }
+  }
+
+  async viewUserClasses(user: any) {
+    const dialogRef = this.dialog.open(UserClassesModalComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data:
+      {
+        userId: user.id,
+        userName: `${user.nombre} ${user.apellido}`.trim()
+      },
+      panelClass: 'ff-confirm-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Opcional: recargar lista si se hizo algún cambio
+        this.loadUsers();
+      }
+    });
   }
 
 }
