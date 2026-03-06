@@ -19,7 +19,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor])),
     provideAnimations(),
     provideToastr({
-      timeOut: 2000,
+      timeOut: 4000,
       positionClass: 'toast-top-right',
       preventDuplicates: true,
       closeButton: true,

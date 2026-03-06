@@ -106,19 +106,45 @@ export class ServicesService {
   async reserveClass(classId: number): Promise<EnrollmentResponse> {
     const user = this._currentUser();
     if (!user) throw new Error('Usuario no autenticado');
+
     const url = `${this.API_URL}/Enrollment/enroll`;
     const body = { userId: Number(user.id), gymClassId: classId };
-    return firstValueFrom(this.http.post<EnrollmentResponse>(url, body));
+
+    try {
+      return await firstValueFrom(this.http.post<EnrollmentResponse>(url, body));
+    } catch (error: any) {
+      // ✅ AHORA EL BACKEND DEVUELVE JSON: { message: "..." }
+      if (error.status === 400 || error.status === 500) {
+        return {
+          success: false,
+          message: error.error?.message || 'Error al reservar'
+        };
+      }
+      throw error;
+    }
   }
 
   async cancelReservation(classId: number): Promise<EnrollmentResponse> {
     const user = this._currentUser();
     if (!user) throw new Error('Usuario no autenticado');
+
     const url = `${this.API_URL}/Enrollment/unenroll`;
     const body = { userId: Number(user.id), gymClassId: classId };
-    return firstValueFrom(
-      this.http.request<EnrollmentResponse>('delete', url, { body })
-    );
+
+    try {
+      return await firstValueFrom(
+        this.http.request<EnrollmentResponse>('delete', url, { body })
+      );
+    } catch (error: any) {
+      // ✅ AHORA EL BACKEND DEVUELVE JSON: { message: "..." }
+      if (error.status === 400 || error.status === 500) {
+        return {
+          success: false,
+          message: error.error?.message || 'Error al cancelar'
+        };
+      }
+      throw error;
+    }
   }
 
   async getCurrentUserWithClasses() {

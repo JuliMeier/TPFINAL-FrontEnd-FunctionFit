@@ -66,7 +66,6 @@ export class AdminUserService {
     }
   }
 
-  // ✅ NUEVO: Dar de baja a usuario de una clase
   async unenrollUser(userId: number, gymClassId: number): Promise<EnrollmentResponse> {
     try {
       return await firstValueFrom(
@@ -76,6 +75,13 @@ export class AdminUserService {
         )
       );
     } catch (error: any) {
+      // ✅ AHORA EL BACKEND DEVUELVE JSON: { message: "..." }
+      if (error.status === 400 || error.status === 500) {
+        return {
+          success: false,
+          message: error.error?.message || 'Error al dar de baja'
+        };
+      }
       throw error.error?.message || 'Error al dar de baja de la clase';
     }
   }

@@ -1,8 +1,24 @@
 <div class="p-4 max-w-[95vw] mx-auto">
-  <!-- Aviso suscripción no activa -->
+
+  <!-- ✅ AVISO: SIN SUSCRIPCIÓN ACTIVA -->
   <div *ngIf="!hasActiveSubscription"
-    class="mb-6 p-4 bg-yellow-200 text-yellow-800 rounded-lg text-center font-semibold">
+    class="mb-6 p-4 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-center font-semibold">
+    <i class="fas fa-exclamation-circle mr-2"></i>
     No tenés una suscripción activa. No podés reservar clases hasta pagar un plan.
+  </div>
+
+  <!-- ✅ NUEVO AVISO: LÍMITE DE CLASES ALCANZADO (AMARILLO) -->
+  <div *ngIf="hasActiveSubscription && reachedClassLimit"
+    class="mb-6 p-4 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-lg text-center font-semibold">
+    <i class="fas fa-info-circle mr-2"></i>
+    {{ getLimitMessage() }}. No podés reservar más clases hasta el próximo mes.
+  </div>
+
+  <!-- ✅ INFO: CLASES DISPONIBLES (VERDE) -->
+  <div *ngIf="hasActiveSubscription && !reachedClassLimit"
+    class="mb-6 p-4 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg text-center font-semibold">
+    <i class="fas fa-check-circle mr-2"></i>
+    {{ getLimitMessage() }}
   </div>
 
   <!-- Encabezado -->
@@ -26,10 +42,8 @@
 
   <!-- Clases -->
   <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 max-w-6xl mx-auto">
-
-    <div *ngFor="let group of groupedClasses" class="bg-slate-700 rounded-2xl shadow-lg overflow-hidden
-      border border-white/10
-      hover:bg-slate-800 hover:scale-[1.015] transition-all duration-200">
+    <div *ngFor="let group of groupedClasses"
+      class="bg-slate-700 rounded-2xl shadow-lg overflow-hidden border border-white/10 hover:bg-slate-800 hover:scale-[1.015] transition-all duration-200">
 
       <!-- Imagen -->
       <img [src]="getClassImage(group.nombre)" [alt]="group.nombre"
@@ -50,10 +64,10 @@
             </div>
 
             <span class="text-xs font-medium" [ngClass]="{
-                'text-red-500': turno.currentEnrollments >= turno.maxCapacity,
-                'text-yellow-400': turno.maxCapacity - turno.currentEnrollments === 1,
-                'text-green-400': turno.maxCapacity - turno.currentEnrollments > 1
-              }">
+              'text-red-500': turno.currentEnrollments >= turno.maxCapacity,
+              'text-yellow-400': turno.maxCapacity - turno.currentEnrollments === 1,
+              'text-green-400': turno.maxCapacity - turno.currentEnrollments > 1
+            }">
               {{ getAvailabilityMessage(turno) }}
             </span>
 
@@ -62,16 +76,17 @@
               {{ turno.duracionMinutos }} min
             </div>
 
+            <!-- ✅ BOTÓN: SIEMPRE DICE "Reservar", SE DESHABILITA CUANDO CORRESPONDE -->
             <button *ngIf="!turno.isReservedByUser" (click)="reserve(turno.id)"
               [disabled]="!canReserve() || turno.currentEnrollments >= turno.maxCapacity" class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
-              bg-slate-500 text-white
-              hover:bg-yellow-400 hover:text-black
-              disabled:bg-gray-600 disabled:text-gray-400">
-              Reservar
+                    bg-slate-500 text-white
+                    hover:bg-yellow-400 hover:text-black
+                    disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed">
+              Reservar <!-- ✅ TEXTO FIJO -->
             </button>
 
             <button *ngIf="turno.isReservedByUser" (click)="cancel(turno.id)" class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
-              bg-red-600 text-white hover:bg-red-700">
+                    bg-red-600 text-white hover:bg-red-700">
               Cancelar
             </button>
           </div>

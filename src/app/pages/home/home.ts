@@ -25,7 +25,7 @@ export default class Home {
     },
     {
       title: 'Elite',
-      price: 100,
+      price: 75,
       highlighted: false,
       features: ['15 clases grupales por mes', '4 sesiones con entrenador personal mensual', 'Plan nutricional personalizado']
     }

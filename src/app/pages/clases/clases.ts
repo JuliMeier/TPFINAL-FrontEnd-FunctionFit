@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ServicesService } from '../../services/services.service';
 import { PaymentService } from '../../services/payment.service';
+import { UserService } from '../../services/user.service';  // ✅ AGREGAR
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
@@ -18,17 +19,23 @@ export default class GymClassesComponent implements OnInit {
   groupedClasses: GroupedGymClass[] = [];
   loading = false;
   error: string | null = null;
-
   private servicesService = inject(ServicesService);
   private paymentService = inject(PaymentService);
+  private userService = inject(UserService);  // ✅ AGREGAR
   private authService = inject(AuthService);
   private toastr = inject(ToastrService);
   private dialog = inject(MatDialog);
 
   hasActiveSubscription = false;
 
+  // ✅ NUEVAS PROPIEDADES PARA EL LÍMITE (REACTIVAS)
+  classLimit = 0;
+  enrolledClassesCount = 0;
+  reachedClassLimit = false;
+
   ngOnInit(): void {
     this.loadPayments();
+    this.loadUserProfile();  // ✅ CARGAR PERFIL CON LÍMITE
     this.loadClasses();
   }
 
@@ -40,11 +47,8 @@ export default class GymClassesComponent implements OnInit {
         this.hasActiveSubscription = false;
         return;
       }
-
       const response = await this.paymentService.getActiveSubscription(userId).toPromise();
-
       this.hasActiveSubscription = response?.hasActiveSubscription ?? false;
-
       if (!this.hasActiveSubscription) {
         this.toastr.info('No tenés una suscripción activa. Para acceder a las clases, debes pagar un plan.', 'Suscripción requerida');
       }
@@ -54,13 +58,39 @@ export default class GymClassesComponent implements OnInit {
     }
   }
 
+  // ✅ NUEVO MÉTODO: CARGAR PERFIL CON LÍMITE DE CLASES
+  async loadUserProfile() {
+    try {
+      const profile = await this.userService.getMe();
+      this.classLimit = profile.classLimit || 0;
+      this.enrolledClassesCount = profile.enrolledClassesCount || 0;
+      this.reachedClassLimit = this.enrolledClassesCount >= this.classLimit && this.classLimit > 0;
+    } catch (err) {
+      console.error('Error al cargar perfil:', err);
+      this.classLimit = 0;
+      this.enrolledClassesCount = 0;
+      this.reachedClassLimit = false;
+    }
+  }
+
   canReserve(): boolean {
-    return this.hasActiveSubscription;
+    return this.hasActiveSubscription && !this.reachedClassLimit;
+  }
+
+  // ✅ MÉTODO PARA OBTENER MENSAJE DEL LÍMITE
+  getLimitMessage(): string {
+    if (!this.hasActiveSubscription) {
+      return 'No tenés una suscripción activa';
+    }
+    if (this.reachedClassLimit) {
+      return `Límite alcanzado: ${this.enrolledClassesCount}/${this.classLimit} clases`;
+    }
+    return `Clases disponibles: ${this.classLimit - this.enrolledClassesCount}/${this.classLimit}`;
   }
 
   async reserve(classId: number) {
     if (!this.canReserve()) {
-      this.toastr.warning('No podés reservar hasta pagar tu cuota mensual', 'Atención');
+      this.toastr.warning(this.getLimitMessage(), 'Atención');
       return;
     }
 
@@ -79,11 +109,12 @@ export default class GymClassesComponent implements OnInit {
           if (res.success) {
             this.updateTurnoState(classId, true, res.currentEnrollments, res.maxCapacity);
             this.toastr.success('¡Reserva confirmada!');
+            await this.loadUserProfile();  // ✅ ACTUALIZAR CONTADOR (REACTIVO)
           } else {
             this.toastr.error(res.message || 'No se pudo reservar', 'Error');
           }
         } catch (err: any) {
-          this.toastr.error(err?.error?.message || 'Error al reservar', 'Error');
+          this.toastr.error(err?.message || 'Error al reservar', 'Error');
         }
       }
     });
@@ -105,11 +136,12 @@ export default class GymClassesComponent implements OnInit {
           if (res.success) {
             this.updateTurnoState(classId, false, res.currentEnrollments, res.maxCapacity);
             this.toastr.info('Reserva cancelada');
+            await this.loadUserProfile();  // ✅ ACTUALIZAR CONTADOR (REACTIVO)
           } else {
             this.toastr.warning(res.message || 'No se pudo cancelar', 'Atención');
           }
         } catch (err: any) {
-          this.toastr.error(err?.error?.message || 'Error al cancelar', 'Error');
+          this.toastr.error(err?.message || 'Error al cancelar', 'Error');
         }
       }
     });
@@ -143,19 +175,16 @@ export default class GymClassesComponent implements OnInit {
 
   private groupClasses(classes: GymClass[]): GroupedGymClass[] {
     const map = new Map<string, GroupedGymClass>();
-
     for (const c of classes) {
       if (!map.has(c.nombre)) {
         map.set(c.nombre, {
           nombre: c.nombre,
           descripcion: c.descripcion,
-          duracionMinutos: c.duracionMinutos, 
+          duracionMinutos: c.duracionMinutos,
           imageUrl: c.imageUrl,
           turnos: []
         });
       }
-
-
       const turno: GymClassTurn = {
         id: c.id,
         dia: c.dia,
@@ -165,10 +194,8 @@ export default class GymClassesComponent implements OnInit {
         currentEnrollments: c.currentEnrollments,
         duracionMinutos: c.duracionMinutos
       };
-
       map.get(c.nombre)!.turnos.push(turno);
     }
-
     return Array.from(map.values());
   }
 
