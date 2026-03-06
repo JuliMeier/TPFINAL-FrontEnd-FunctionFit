@@ -1,9 +1,26 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { RegisterService } from '../../services/register.service';
 import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+
+function passwordsMatchValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const password = control.get('password');
+    const passwordConfirm = control.get('passwordConfirm');
+
+    if (!password || !passwordConfirm) {
+      return null;
+    }
+
+    if (passwordConfirm.value === '') {
+      return null;
+    }
+
+    return password.value === passwordConfirm.value ? null : { passwordsMismatch: true };
+  };
+}
 
 @Component({
   selector: 'app-register',
@@ -27,8 +44,9 @@ export default class Register {
       lastName: ['', [Validators.required]],
       phoneNumber: ['', [Validators.required, Validators.pattern('^[0-9]{8,15}$')]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
-    });
+      password: ['', [Validators.required]],
+      passwordConfirm: ['', [Validators.required]]
+    }, { validators: passwordsMatchValidator() });
   }
 
   hasError(controlName: string, errorName: string): boolean {
@@ -46,7 +64,10 @@ export default class Register {
     this.errorMessage = null;
 
     try {
-      const response = await this.registerService.register(this.registerForm.value);
+      const formData = { ...this.registerForm.value };
+      delete formData.passwordConfirm;
+      
+      const response = await this.registerService.register(formData);
       console.log('Registro exitoso:', response.message);
       this.toastr.success('¡Registro exitoso! Iniciá sesión para continuar.', '¡Bienvenido!');
       setTimeout(() => this.router.navigate(['/login']), 2000);
