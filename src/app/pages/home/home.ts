@@ -19,13 +19,13 @@ export default class Home {
     },
     {
       title: 'Premium',
-      price: 50,
+      price: 45,
       highlighted: true,
       features: ['Acceso completo al gimnasio', 'Horario 24/7', '10 clases grupales por mes', '1 sesión con entrenador personal mensual']
     },
     {
       title: 'Elite',
-      price: 75,
+      price: 70,
       highlighted: false,
       features: ['15 clases grupales por mes', '4 sesiones con entrenador personal mensual', 'Plan nutricional personalizado']
     }
