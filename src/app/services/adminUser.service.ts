@@ -85,4 +85,14 @@ export class AdminUserService {
       throw error.error?.message || 'Error al dar de baja de la clase';
     }
   }
+
+  async getDeleteSummary(id: number): Promise<any> {
+    try {
+      return await firstValueFrom(
+        this.http.get<any>(`${this.API_URL}/${id}/delete-summary`)
+      );
+    } catch (error: any) {
+      throw error.error?.message || 'Error al obtener resumen';
+    }
+  }
 }

@@ -20,7 +20,7 @@ export default class UserList {
   private toastr = inject(ToastrService);
   private paymentService = inject(PaymentService);
   private dialog = inject(MatDialog);
-
+  deleteSummary = signal<any>(null);
   searchTerm = signal('');
 
   users = signal<any[]>([]);
@@ -86,9 +86,18 @@ export default class UserList {
     this.showForm.set(true);
   }
 
-  confirmDelete(id: number) {
+  async confirmDelete(id: number) {
     this.pendingDeleteId = id;
-    this.showConfirmDialog = true;
+
+    // ✅ Obtener resumen antes de mostrar modal
+    try {
+      const summary = await this.adminUserService.getDeleteSummary(id);
+      this.deleteSummary.set(summary);
+      this.showConfirmDialog = true;
+    } catch (err) {
+      this.toastr.error('Error al cargar información del usuario');
+      this.showConfirmDialog = true; // Mostrar igual pero sin resumen
+    }
   }
 
   cancelDelete() {
