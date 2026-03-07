@@ -1,25 +1,49 @@
 <div class="p-4 max-w-[95vw] mx-auto">
+  @if (hasActiveSubscription) {
+  <div class="w-full max-w-3xl mx-auto mb-6">
+    <div class="flex items-center justify-between p-4 rounded-xl
+                bg-slate-800/50 border border-slate-700
+                backdrop-blur-xl">
 
-  <!-- ✅ AVISO: SIN SUSCRIPCIÓN ACTIVA -->
-  <div *ngIf="!hasActiveSubscription"
-    class="mb-6 p-4 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-center font-semibold">
-    <i class="fas fa-exclamation-circle mr-2"></i>
-    No tenés una suscripción activa. No podés reservar clases hasta pagar un plan.
-  </div>
+      <!-- Izquierda: Label + Contador en la misma línea -->
+      <div class="flex items-center gap-3">
+        <i class="fas fa-calendar-check text-yellow-400 text-xl"></i>
+        <div class="flex items-baseline gap-2">
+          <span class="text-yellow-400 font-bold text-lg">Clases reservadas</span>
+          <span class="text-white font-bold text-xl">{{ enrolledClassesCount }}</span>
+          <span class="text-white font-bold text-lg">/</span>
+          <span class="text-white font-bold text-lg">{{ classLimit }}</span>
+        </div>
+      </div>
 
-  <!-- ✅ NUEVO AVISO: LÍMITE DE CLASES ALCANZADO (AMARILLO) -->
-  <div *ngIf="hasActiveSubscription && reachedClassLimit"
-    class="mb-6 p-4 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-lg text-center font-semibold">
-    <i class="fas fa-info-circle mr-2"></i>
-    {{ getLimitMessage() }}. No podés reservar más clases hasta el próximo mes.
+      <!-- Derecha: Badge de estado -->
+      <div>
+        @if (reachedClassLimit) {
+        <span class="px-3 py-1.5 rounded-lg text-sm font-semibold
+                       bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+          <i class="fas fa-exclamation-triangle mr-1"></i>
+          Límite alcanzado
+        </span>
+        } @else {
+        <span class="px-3 py-1.5 rounded-lg text-sm font-semibold
+                       bg-green-500/20 text-green-400 border border-green-500/30">
+          <i class="fas fa-check-circle mr-1"></i>
+          {{ classLimit - enrolledClassesCount }} disponibles
+        </span>
+        }
+      </div>
+    </div>
   </div>
-
-  <!-- ✅ INFO: CLASES DISPONIBLES (VERDE) -->
-  <div *ngIf="hasActiveSubscription && !reachedClassLimit"
-    class="mb-6 p-4 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg text-center font-semibold">
-    <i class="fas fa-check-circle mr-2"></i>
-    {{ getLimitMessage() }}
+  } @else {
+  <div class="w-full max-w-3xl mx-auto mb-6 p-4 rounded-xl
+              bg-red-500/20 border border-red-500/30
+              backdrop-blur-xl text-center">
+    <i class="fas fa-exclamation-circle text-red-400 mr-2"></i>
+    <span class="text-red-400 font-semibold">
+      No tenés una suscripción activa. No podés reservar clases.
+    </span>
   </div>
+  }
 
   <!-- Encabezado -->
   <div class="flex flex-col items-center gap-2 mb-6 text-center">
@@ -50,8 +74,17 @@
         class="h-24 w-full object-cover opacity-90 grayscale hover:grayscale-0 transition-all duration-300" />
 
       <div class="p-4 flex flex-col text-center">
+        <!-- Nombre de la clase -->
         <h3 class="text-base font-semibold text-white mb-1">{{ group.nombre }}</h3>
-        <p class="text-sm text-gray-400 mb-3">{{ group.descripcion }}</p>
+
+        <!-- Descripción -->
+        <p class="text-sm text-gray-400 mb-2">{{ group.descripcion }}</p>
+
+        <!-- ✅ DURACIÓN MOVIDA ACÁ (nivel de clase, no por turno) -->
+        <div class="text-xs text-yellow-400 flex items-center justify-center gap-1 mb-3">
+          <i class="far fa-clock"></i>
+          <span class="font-semibold">{{ group.duracionMinutos }} minutos</span>
+        </div>
 
         <!-- Turnos -->
         <div class="space-y-2 flex-1">
@@ -64,29 +97,27 @@
             </div>
 
             <span class="text-xs font-medium" [ngClass]="{
-              'text-red-500': turno.currentEnrollments >= turno.maxCapacity,
-              'text-yellow-400': turno.maxCapacity - turno.currentEnrollments === 1,
-              'text-green-400': turno.maxCapacity - turno.currentEnrollments > 1
-            }">
+            'text-red-500': turno.currentEnrollments >= turno.maxCapacity,
+            'text-yellow-400': turno.maxCapacity - turno.currentEnrollments === 1,
+            'text-green-400': turno.maxCapacity - turno.currentEnrollments > 1
+          }">
               {{ getAvailabilityMessage(turno) }}
             </span>
 
-            <div class="text-xs text-gray-400 flex items-center gap-1">
-              <i class="far fa-clock"></i>
-              {{ turno.duracionMinutos }} min
-            </div>
+            <!-- ✅ SE ELIMINÓ LA DURACIÓN INDIVIDUAL DE ACÁ -->
 
-            <!-- ✅ BOTÓN: SIEMPRE DICE "Reservar", SE DESHABILITA CUANDO CORRESPONDE -->
+            <!-- Botón Reservar -->
             <button *ngIf="!turno.isReservedByUser" (click)="reserve(turno.id)"
               [disabled]="!canReserve() || turno.currentEnrollments >= turno.maxCapacity" class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
-                    bg-slate-500 text-white
-                    hover:bg-yellow-400 hover:text-black
-                    disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed">
-              Reservar <!-- ✅ TEXTO FIJO -->
+              bg-slate-500 text-white
+              hover:bg-yellow-400 hover:text-black
+              disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed">
+              Reservar
             </button>
 
+            <!-- Botón Cancelar -->
             <button *ngIf="turno.isReservedByUser" (click)="cancel(turno.id)" class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
-                    bg-red-600 text-white hover:bg-red-700">
+              bg-red-600 text-white hover:bg-red-700">
               Cancelar
             </button>
           </div>

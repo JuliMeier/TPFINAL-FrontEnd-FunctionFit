@@ -158,7 +158,7 @@
             <div>
               <p class="text-base font-semibold text-slate-900">{{ item.className }}</p>
               <p class="text-sm text-slate-800 mt-1">
-                Clase: {{ item.classDate }} · Acción: {{ item.actionDate }}
+                <span class="text-slate-600">Acción:</span> {{ item.actionDate | date:'dd/MM/yyyy HH:mm' }}
               </p>
             </div>
           </div>

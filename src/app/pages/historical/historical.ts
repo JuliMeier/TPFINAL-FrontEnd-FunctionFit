@@ -30,7 +30,7 @@ export default class HistoricalComponent implements OnInit {
       this.history = data.map(item => ({
         ...item,
         classDate: this.formatDate(item.classDate),
-        actionDate: this.formatDate(item.actionDate)
+        actionDate: item.actionDate
       }));
 
       this.calculateMetrics();
