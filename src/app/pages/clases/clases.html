@@ -1,18 +1,66 @@
 <div class="p-4 max-w-[95vw] mx-auto">
-  @if (hasActiveSubscription) {
-  <div class="w-full max-w-3xl mx-auto mb-6">
-    <div class="flex items-center justify-between p-4 rounded-xl
-                bg-slate-800/50 border border-slate-700
-                backdrop-blur-xl">
 
-      <!-- Izquierda: Label + Contador en la misma línea -->
+  <!-- ✅ TÍTULO DE SECCIÓN CON ICONO -->
+  <div class="flex flex-col items-center gap-2 mb-4 text-center">
+    <span class="text-5xl">🏋️</span>
+    <h2 class="text-xl font-bold text-gray-100">Clases disponibles</h2>
+    <p class="text-blue-1100 text-base font-semibold">Elegí tu clase y reservá tu lugar</p>
+  </div>
+
+  <!-- ✅ BANNER "HOY EN EL GIMNASIO" -->
+  @if (hasActiveSubscription && todayClassesCount() > 0) {
+  <div class="w-full max-w-3xl mx-auto mb-4 p-5 rounded-2xl
+              bg-slate-700 border border-white/10
+              hover:bg-slate-800 hover:scale-[1.015]
+              transition-all duration-200 shadow-lg">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🔥</span>
+        <div>
+          <h3 class="text-lg font-bold text-blue-400">Hoy en el Gimnasio</h3>
+          <p class="text-sm text-slate-300">
+            {{ todayClassesCount() }} {{ todayClassesCount() === 1 ? 'clase disponible' : 'clases disponibles' }}
+          </p>
+        </div>
+      </div>
+      <button (click)="filterByDay(todayDay())" class="px-5 py-2.5 bg-blue-500 hover:bg-blue-400
+               text-white font-bold rounded-xl
+               transition-all duration-200
+               hover:shadow-lg hover:shadow-blue-500/30
+               text-sm">
+        Ver ahora
+      </button>
+    </div>
+  </div>
+  } @else if (hasActiveSubscription && todayClassesCount() === 0) {
+  <div class="w-full max-w-3xl mx-auto mb-4 p-5 rounded-2xl
+              bg-slate-700 border border-white/10
+              hover:bg-slate-800 hover:scale-[1.015]
+              transition-all duration-200 shadow-lg text-center">
+    <span class="text-2xl">📅</span>
+    <p class="text-slate-300 font-semibold mt-2">
+      No hay clases programadas para hoy
+    </p>
+  </div>
+  }
+
+  <!-- ✅ CONTADOR "CLASES RESERVADAS" (TEXTO CLARO) -->
+  @if (hasActiveSubscription) {
+  <div class="w-full max-w-3xl mx-auto mb-4">
+    <div class="flex items-center justify-between p-4 rounded-2xl
+              bg-slate-700 border border-white/10
+              hover:bg-slate-800 hover:scale-[1.015]
+              transition-all duration-200 shadow-lg">
+
+      <!-- Izquierda: Label + Contador -->
       <div class="flex items-center gap-3">
         <i class="fas fa-calendar-check text-yellow-400 text-xl"></i>
         <div class="flex items-baseline gap-2">
           <span class="text-yellow-400 font-bold text-lg">Clases reservadas</span>
-          <span class="text-white font-bold text-xl">{{ enrolledClassesCount }}</span>
-          <span class="text-white font-bold text-lg">/</span>
-          <span class="text-white font-bold text-lg">{{ classLimit }}</span>
+          <span class="text-white font-bold text-sm">{{ enrolledClassesCount }}</span>
+          <span class="text-white font-bold text-sm">/</span>
+          <span class="text-white font-bold text-sm">{{ classLimit }}</span>
+          <span class="text-slate-400 text-xs ml-1">(según tu plan actual)</span>
         </div>
       </div>
 
@@ -20,24 +68,25 @@
       <div>
         @if (reachedClassLimit) {
         <span class="px-3 py-1.5 rounded-lg text-sm font-semibold
-                       bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
           <i class="fas fa-exclamation-triangle mr-1"></i>
           Límite alcanzado
         </span>
         } @else {
         <span class="px-3 py-1.5 rounded-lg text-sm font-semibold
-                       bg-green-500/20 text-green-400 border border-green-500/30">
+                 bg-green-500/20 text-green-400 border border-green-500/30">
           <i class="fas fa-check-circle mr-1"></i>
-          {{ classLimit - enrolledClassesCount }} disponibles
+          {{ classLimit - enrolledClassesCount }} {{ classLimit - enrolledClassesCount === 1 ? 'restante' : 'restantes'
+          }}
         </span>
         }
       </div>
     </div>
   </div>
   } @else {
-  <div class="w-full max-w-3xl mx-auto mb-6 p-4 rounded-xl
-              bg-red-500/20 border border-red-500/30
-              backdrop-blur-xl text-center">
+  <div class="w-full max-w-3xl mx-auto mb-4 p-4 rounded-2xl
+            bg-red-500/20 border border-red-500/30
+            backdrop-blur-xl text-center">
     <i class="fas fa-exclamation-circle text-red-400 mr-2"></i>
     <span class="text-red-400 font-semibold">
       No tenés una suscripción activa. No podés reservar clases.
@@ -45,11 +94,30 @@
   </div>
   }
 
-  <!-- Encabezado -->
-  <div class="flex flex-col items-center gap-2 mb-6 text-center">
-    <span class="text-5xl">🏋️</span>
-    <h2 class="text-xl font-bold text-gray-100">Clases disponibles</h2>
-    <p class="text-blue-1100 text-base font-semibold">Elegí tu clase y reservá tu lugar</p>
+  <!-- ✅ FILTRO DE DÍAS (CON JUSTIFY-CENTER) -->
+  <div class="w-full max-w-3xl mx-auto mb-6">
+    <div class="flex items-center justify-center gap-2 overflow-x-auto pb-2">
+      <button (click)="filterByDay(null)" [class]="selectedDay() === null ?
+        'bg-blue-500 text-white font-bold' :
+        'bg-slate-700 text-slate-300 hover:bg-slate-600'"
+        class="px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-200 text-sm">
+        📅 Todos
+      </button>
+
+      @for (day of days; track day.value) {
+      @if (day.value !== 7) {
+      <button (click)="filterByDay(day.value)" [class]="selectedDay() === day.value ?
+          'bg-blue-500 text-white font-bold' :
+          'bg-slate-700 text-slate-300 hover:bg-slate-600'"
+        class="px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-200 text-sm">
+        {{ day.label }}
+        @if (isToday(day.value)) {
+        <span class="ml-1 text-xs">🔥</span>
+        }
+      </button>
+      }
+      }
+    </div>
   </div>
 
   <!-- Loading -->
@@ -64,9 +132,10 @@
     {{ error }}
   </div>
 
-  <!-- Clases -->
+  <!-- Clases (FILTRADAS) -->
   <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 max-w-6xl mx-auto">
-    <div *ngFor="let group of groupedClasses"
+    @for (group of filteredGroupedClasses(); track group.nombre) {
+    <div
       class="bg-slate-700 rounded-2xl shadow-lg overflow-hidden border border-white/10 hover:bg-slate-800 hover:scale-[1.015] transition-all duration-200">
 
       <!-- Imagen -->
@@ -80,7 +149,7 @@
         <!-- Descripción -->
         <p class="text-sm text-gray-400 mb-2">{{ group.descripcion }}</p>
 
-        <!-- ✅ DURACIÓN MOVIDA ACÁ (nivel de clase, no por turno) -->
+        <!-- Duración -->
         <div class="text-xs text-yellow-400 flex items-center justify-center gap-1 mb-3">
           <i class="far fa-clock"></i>
           <span class="font-semibold">{{ group.duracionMinutos }} minutos</span>
@@ -88,8 +157,8 @@
 
         <!-- Turnos -->
         <div class="space-y-2 flex-1">
-          <div *ngFor="let turno of group.turnos"
-            class="bg-slate-600/50 rounded-lg p-2 flex flex-col items-center gap-1">
+          @for (turno of group.turnos; track turno.id) {
+          <div class="bg-slate-600/50 rounded-lg p-2 flex flex-col items-center gap-1">
 
             <div class="text-sm text-gray-300 flex items-center gap-2">
               <i class="far fa-calendar-alt text-blue-700"></i>
@@ -97,32 +166,41 @@
             </div>
 
             <span class="text-xs font-medium" [ngClass]="{
-            'text-red-500': turno.currentEnrollments >= turno.maxCapacity,
-            'text-yellow-400': turno.maxCapacity - turno.currentEnrollments === 1,
-            'text-green-400': turno.maxCapacity - turno.currentEnrollments > 1
-          }">
+              'text-red-500': turno.currentEnrollments >= turno.maxCapacity,
+              'text-yellow-400': turno.maxCapacity - turno.currentEnrollments === 1,
+              'text-green-400': turno.maxCapacity - turno.currentEnrollments > 1
+            }">
               {{ getAvailabilityMessage(turno) }}
             </span>
 
-            <!-- ✅ SE ELIMINÓ LA DURACIÓN INDIVIDUAL DE ACÁ -->
-
             <!-- Botón Reservar -->
-            <button *ngIf="!turno.isReservedByUser" (click)="reserve(turno.id)"
+            @if (!turno.isReservedByUser) {
+            <button (click)="reserve(turno.id)"
               [disabled]="!canReserve() || turno.currentEnrollments >= turno.maxCapacity" class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
-              bg-slate-500 text-white
-              hover:bg-yellow-400 hover:text-black
-              disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed">
+                     bg-slate-500 text-white
+                     hover:bg-yellow-400 hover:text-black
+                     disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed">
               Reservar
             </button>
+            }
 
             <!-- Botón Cancelar -->
-            <button *ngIf="turno.isReservedByUser" (click)="cancel(turno.id)" class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
-              bg-red-600 text-white hover:bg-red-700">
+            @if (turno.isReservedByUser) {
+            <button (click)="cancel(turno.id)" class="mt-1 px-6 text-sm py-1.5 rounded-md font-medium transition
+                     bg-red-600 text-white hover:bg-red-700">
               Cancelar
             </button>
+            }
           </div>
+          }
         </div>
       </div>
     </div>
+    } @empty {
+    <div class="col-span-full text-center text-gray-400 py-10">
+      <span class="text-4xl">📭</span>
+      <p class="mt-2">No hay clases para el día seleccionado</p>
+    </div>
+    }
   </div>
 </div>

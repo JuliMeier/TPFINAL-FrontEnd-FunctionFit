@@ -1,7 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ServicesService } from '../../services/services.service';
 import { PaymentService } from '../../services/payment.service';
-import { UserService } from '../../services/user.service';  // ✅ AGREGAR
+import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
@@ -19,24 +19,71 @@ export default class GymClassesComponent implements OnInit {
   groupedClasses: GroupedGymClass[] = [];
   loading = false;
   error: string | null = null;
+
   private servicesService = inject(ServicesService);
   private paymentService = inject(PaymentService);
-  private userService = inject(UserService);  // ✅ AGREGAR
+  private userService = inject(UserService);
   private authService = inject(AuthService);
   private toastr = inject(ToastrService);
   private dialog = inject(MatDialog);
 
   hasActiveSubscription = false;
 
-  // ✅ NUEVAS PROPIEDADES PARA EL LÍMITE (REACTIVAS)
+  // ✅ LÍMITE DE CLASES
   classLimit = 0;
   enrolledClassesCount = 0;
   reachedClassLimit = false;
 
+  // ✅ FILTRO POR DÍA (null = todos los días)
+  selectedDay = signal<number | null>(null);
+  todayDay = signal<number>(this.getCurrentDayOfWeek());
+  todayClassesCount = signal(0);
+
+  // ✅ DÍAS DE LA SEMANA (1-7 para coincidir con backend)
+  days = [
+    { value: 1, label: 'Lunes' },
+    { value: 2, label: 'Martes' },
+    { value: 3, label: 'Miércoles' },
+    { value: 4, label: 'Jueves' },
+    { value: 5, label: 'Viernes' },
+    { value: 6, label: 'Sábado' },
+    { value: 7, label: 'Domingo' }
+  ];
+
   ngOnInit(): void {
     this.loadPayments();
-    this.loadUserProfile();  // ✅ CARGAR PERFIL CON LÍMITE
+    this.loadUserProfile();
     this.loadClasses();
+  }
+
+  // ✅ MÉTODO CORREGIDO: JS getDay() devuelve 0=Domingo, backend usa 7=Domingo
+  private getCurrentDayOfWeek(): number {
+    const jsDay = new Date().getDay(); // 0=Domingo, 1=Lunes...6=Sábado
+    return jsDay === 0 ? 7 : jsDay;    // Convertir 0→7 para coincidir con backend
+  }
+
+  // ✅ FILTRAR CLASES POR DÍA SELECCIONADO
+  filteredGroupedClasses = computed(() => {
+    const selected = this.selectedDay();
+    const allClasses = this.groupedClasses;
+
+    if (!selected) return allClasses;
+
+    return allClasses
+      .map(group => ({
+        ...group,
+        turnos: group.turnos.filter(turno => turno.dia === selected)
+      }))
+      .filter(group => group.turnos.length > 0);
+  });
+
+  // ✅ CONTAR CLASES DE HOY
+  private updateTodayClassesCount() {
+    const today = this.todayDay();
+    const count = this.groupedClasses.reduce((acc, group) => {
+      return acc + group.turnos.filter(t => t.dia === today).length;
+    }, 0);
+    this.todayClassesCount.set(count);
   }
 
   async loadPayments() {
@@ -58,7 +105,6 @@ export default class GymClassesComponent implements OnInit {
     }
   }
 
-  // ✅ NUEVO MÉTODO: CARGAR PERFIL CON LÍMITE DE CLASES
   async loadUserProfile() {
     try {
       const profile = await this.userService.getMe();
@@ -77,7 +123,6 @@ export default class GymClassesComponent implements OnInit {
     return this.hasActiveSubscription && !this.reachedClassLimit;
   }
 
-  // ✅ MÉTODO PARA OBTENER MENSAJE DEL LÍMITE
   getLimitMessage(): string {
     if (!this.hasActiveSubscription) {
       return 'No tenés una suscripción activa';
@@ -86,6 +131,16 @@ export default class GymClassesComponent implements OnInit {
       return `Límite alcanzado: ${this.enrolledClassesCount}/${this.classLimit} clases`;
     }
     return `Clases disponibles: ${this.classLimit - this.enrolledClassesCount}/${this.classLimit}`;
+  }
+
+  // ✅ FILTRAR POR DÍA
+  filterByDay(day: number | null) {
+    this.selectedDay.set(day);
+  }
+
+  // ✅ VERIFICAR SI ES HOY
+  isToday(dia: number): boolean {
+    return dia === this.todayDay();
   }
 
   async reserve(classId: number) {
@@ -109,7 +164,8 @@ export default class GymClassesComponent implements OnInit {
           if (res.success) {
             this.updateTurnoState(classId, true, res.currentEnrollments, res.maxCapacity);
             this.toastr.success('¡Reserva confirmada!');
-            await this.loadUserProfile();  // ✅ ACTUALIZAR CONTADOR (REACTIVO)
+            await this.loadUserProfile();
+            this.updateTodayClassesCount();
           } else {
             this.toastr.error(res.message || 'No se pudo reservar', 'Error');
           }
@@ -136,7 +192,8 @@ export default class GymClassesComponent implements OnInit {
           if (res.success) {
             this.updateTurnoState(classId, false, res.currentEnrollments, res.maxCapacity);
             this.toastr.info('Reserva cancelada');
-            await this.loadUserProfile();  // ✅ ACTUALIZAR CONTADOR (REACTIVO)
+            await this.loadUserProfile();
+            this.updateTodayClassesCount();
           } else {
             this.toastr.warning(res.message || 'No se pudo cancelar', 'Atención');
           }
@@ -165,6 +222,7 @@ export default class GymClassesComponent implements OnInit {
     try {
       const classes = await this.servicesService.getGymClasses();
       this.groupedClasses = this.groupClasses(classes);
+      this.updateTodayClassesCount();
     } catch (err) {
       console.error(err);
       this.error = 'No se pudieron cargar las clases';
