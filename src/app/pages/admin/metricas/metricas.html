@@ -1,7 +1,36 @@
 <div class="space-y-8 px-4">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold">Métricas de Actividad</h1>
+    <!-- ✅ HEADER CON ESTÉTICA FUNCTIONFIT (AMARILLO + SLATE) -->
+    <div class="relative overflow-hidden rounded-2xl p-6 mb-8
+            bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800
+            border border-yellow-500/30
+            shadow-xl shadow-yellow-500/10
+            backdrop-blur-sm">
+
+        <!-- Decoración de fondo (amarilla en vez de blanca) -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 rounded-full -translate-y-1/2 translate-x-1/2">
+        </div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-yellow-500/5 rounded-full translate-y-1/2 -translate-x-1/2">
+        </div>
+
+        <!-- Borde superior amarillo (firma FunctionFit) -->
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600">
+        </div>
+
+        <div class="relative z-10 flex items-center gap-4">
+            <!-- Ícono con fondo amarillo -->
+            <div class="w-14 h-14 rounded-xl bg-yellow-500/10 flex items-center justify-center
+                border border-yellow-500/30 shadow-lg">
+                <i class="fas fa-chart-line text-3xl text-yellow-400"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-white drop-shadow-lg">
+                    📈 Métricas de Actividad
+                </h1>
+                <p class="text-yellow-100/80 text-sm mt-1 font-medium">
+                    Dashboard de estadísticas globales del gimnasio
+                </p>
+            </div>
+        </div>
     </div>
 
     @if (loading()) {
@@ -10,143 +39,177 @@
         <p class="text-slate-400 mt-4">Cargando estadísticas...</p>
     </div>
     } @else {
-    <!-- USUARIOS -->
-    <div class="glass-card overflow-hidden">
-        <div class="bg-slate-800/50 p-4 flex items-center gap-4">
-            <mat-icon class="text-yellow-400 text-3xl">people</mat-icon>
-            <div>
-                <h3 class="text-xl font-bold text-yellow-400">Usuarios</h3>
-                <p class="text-sm text-slate-400">Resumen de usuarios del sistema</p>
+    <!-- ✅ KPI CARDS CON ICONOS ANIMADOS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        @for (kpi of kpis(); track kpi.label) {
+        <div class="group relative glass-card p-5 text-center hover:scale-105 transition-transform duration-300 cursor-pointer
+                    border-l-4" [class]="kpi.borderClass">
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <i class="{{ kpi.icon }} text-2xl" [class]="kpi.colorClass"></i>
+                <p class="text-3xl font-bold text-white">{{ kpi.value }}</p>
+            </div>
+            <p class="text-xs text-slate-400 uppercase tracking-wide">{{ kpi.label }}</p>
+
+            <!-- Tooltip al hover -->
+            <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 
+                       px-3 py-1.5 bg-slate-900 text-white text-xs rounded-lg
+                       opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap
+                       pointer-events-none shadow-xl border border-slate-700 z-20">
+                {{ kpi.tooltip }}
+            </span>
+        </div>
+        }
+    </div>
+
+    <!-- ✅ FILA 1: USUARIOS + GRÁFICO ROLES -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- USUARIOS -->
+        <div class="glass-card overflow-hidden">
+            <div class="bg-slate-800/50 p-4 flex items-center gap-4">
+                <mat-icon class="text-yellow-400 text-3xl">people</mat-icon>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-400">Usuarios</h3>
+                    <p class="text-sm text-slate-400">Distribución por rol</p>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="text-center p-4 bg-blue-500/10 rounded-xl border border-blue-500/30">
+                        <p class="text-3xl font-bold text-blue-400">{{ stats().totalUsers }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Total</p>
+                    </div>
+                    <div class="text-center p-4 bg-green-500/10 rounded-xl border border-green-500/30">
+                        <p class="text-3xl font-bold text-green-400">{{ stats().totalSocios }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Socios</p>
+                    </div>
+                    <div class="text-center p-4 bg-purple-500/10 rounded-xl border border-purple-500/30">
+                        <p class="text-3xl font-bold text-purple-400">{{ stats().totalAdmins }}</p>
+                        <!-- ✅ ACLARACIÓN: INCLUYE SUPER ADMINS -->
+                        <p class="text-xs text-slate-400 mt-1">Admins (incluye Super)</p>
+                    </div>
+                </div>
+                <!-- GRÁFICO DE BARRAS -->
+                <div class="h-48">
+                    <canvas id="userRoleChart"></canvas>
+                </div>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-700">
-            <div class="p-6 text-center">
-                <p class="text-slate-400 text-sm mb-2">Total Usuarios</p>
-                <p class="text-6xl font-bold text-blue-400">{{ stats().totalUsers }}</p>
+
+        <!-- SUSCRIPCIONES -->
+        <div class="glass-card overflow-hidden">
+            <div class="bg-slate-800/50 p-4 flex items-center gap-4">
+                <mat-icon class="text-yellow-400 text-3xl">membership</mat-icon>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-400">Suscripciones</h3>
+                    <p class="text-sm text-slate-400">Estado de membresías</p>
+                </div>
             </div>
-            <div class="p-6 text-center">
-                <p class="text-slate-400 text-sm mb-2">Socios</p>
-                <p class="text-6xl font-bold text-green-400">{{ stats().totalSocios }}</p>
-            </div>
-            <div class="p-6 text-center">
-                <p class="text-slate-400 text-sm mb-2">Administradores</p>
-                <p class="text-6xl font-bold text-purple-400">{{ stats().totalAdmins }}</p>
+            <div class="p-6">
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="text-center p-4 bg-green-500/10 rounded-xl border border-green-500/30">
+                        <p class="text-3xl font-bold text-green-400">{{ stats().activeSubscriptions }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Activas</p>
+                    </div>
+                    <div class="text-center p-4 bg-red-500/10 rounded-xl border border-red-500/30">
+                        <p class="text-3xl font-bold text-red-400">{{ stats().expiredSubscriptions }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Vencidas</p>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-500/10 rounded-xl border border-yellow-500/30">
+                        <p class="text-3xl font-bold text-yellow-400">{{ stats().subscriptionRate }}%</p>
+                        <p class="text-xs text-slate-400 mt-1">Conversión</p>
+                    </div>
+                </div>
+                <!-- GRÁFICO DE DONA -->
+                <div class="h-48 flex justify-center">
+                    <canvas id="subscriptionChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- SUSCRIPCIONES -->
-    <div class="glass-card overflow-hidden">
-        <div class="bg-slate-800/50 p-4 flex items-center gap-4">
-            <mat-icon class="text-yellow-400 text-3xl">membership</mat-icon>
-            <div>
-                <h3 class="text-xl font-bold text-yellow-400">Suscripciones</h3>
-                <p class="text-sm text-slate-400">Estado de membresías</p>
+    <!-- ✅ FILA 2: CLASES + OCUPACIÓN -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- CLASES -->
+        <div class="glass-card overflow-hidden">
+            <div class="bg-slate-800/50 p-4 flex items-center gap-4">
+                <mat-icon class="text-yellow-400 text-3xl">event</mat-icon>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-400">Clases</h3>
+                    <p class="text-sm text-slate-400">Ocupación y disponibilidad</p>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="text-center p-4 bg-cyan-500/10 rounded-xl border border-cyan-500/30">
+                        <p class="text-3xl font-bold text-cyan-400">{{ stats().totalClasses }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Total</p>
+                    </div>
+                    <div class="text-center p-4 bg-green-500/10 rounded-xl border border-green-500/30">
+                        <p class="text-3xl font-bold text-green-400">{{ stats().classesWithAvailableSpots }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Con Cupo</p>
+                    </div>
+                    <div class="text-center p-4 bg-orange-500/10 rounded-xl border border-orange-500/30">
+                        <p class="text-3xl font-bold text-orange-400">{{ stats().fullClasses }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Completas</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-slate-800/50 rounded-xl">
+                    <div>
+                        <p class="text-sm text-slate-400">Total Inscriptos</p>
+                        <p class="text-2xl font-bold text-green-400">{{ stats().totalEnrollments }}</p>
+                    </div>
+                    <!-- INDICADOR CIRCULAR DE OCUPACIÓN -->
+                    <div class="relative w-24 h-24">
+                        <svg class="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
+                            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#334155" stroke-width="3" />
+                            <circle cx="18" cy="18" r="15.9" fill="none" [attr.stroke]="getOccupancyColor()"
+                                stroke-width="3" [attr.stroke-dasharray]="100"
+                                [attr.stroke-dashoffset]="100 - stats().occupancyRate" stroke-linecap="round"
+                                style="transition: stroke-dashoffset 0.5s ease" />
+                        </svg>
+                        <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
+                            {{ stats().occupancyRate }}%
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-700">
-            <div class="p-6 text-center">
-                <p class="text-slate-400 text-sm mb-2">Suscripciones Activas</p>
-                <p class="text-6xl font-bold text-green-400">{{ stats().activeSubscriptions }}</p>
-            </div>
-            <div class="p-6 text-center">
-                <p class="text-slate-400 text-sm mb-2">Suscripciones Vencidas</p>
-                <p class="text-6xl font-bold text-red-400">{{ stats().expiredSubscriptions }}</p>
-            </div>
-            <div class="p-6 text-center">
-                <p class="text-slate-400 text-sm mb-2">Tasa de Conversión</p>
-                <p class="text-6xl font-bold text-yellow-400">{{ stats().subscriptionRate }}%</p>
-            </div>
-        </div>
-    </div>
 
-    <!-- CLASES -->
-    <div class="glass-card overflow-hidden">
-        <div class="bg-slate-800/50 p-4 flex items-center gap-4">
-            <mat-icon class="text-yellow-400 text-3xl">event</mat-icon>
-            <div>
-                <h3 class="text-xl font-bold text-yellow-400">Clases</h3>
-                <p class="text-sm text-slate-400">Ocupación y disponibilidad</p>
+        <!-- PAGOS -->
+        <div class="glass-card overflow-hidden">
+            <div class="bg-slate-800/50 p-4 flex items-center gap-4">
+                <mat-icon class="text-yellow-400 text-3xl">payments</mat-icon>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-400">Pagos e Ingresos</h3>
+                    <p class="text-sm text-slate-400">Resumen financiero</p>
+                </div>
+            </div>
+            <div class="p-6">
+                <div
+                    class="text-center mb-6 p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl border border-green-500/30">
+                    <p class="text-sm text-slate-400 mb-1">Ingresos Totales</p>
+                    <p class="text-4xl font-bold text-green-400">{{ formatCurrency(stats().totalRevenue) }}</p>
+                </div>
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="text-center p-4 bg-orange-500/10 rounded-xl border border-orange-500/30">
+                        <p class="text-2xl font-bold text-orange-400">{{ stats().totalPayments }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Total</p>
+                    </div>
+                    <div class="text-center p-4 bg-green-500/10 rounded-xl border border-green-500/30">
+                        <p class="text-2xl font-bold text-green-400">{{ stats().paidPayments }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Aprobados</p>
+                    </div>
+                    <div class="text-center p-4 bg-red-500/10 rounded-xl border border-red-500/30">
+                        <p class="text-2xl font-bold text-red-400">{{ stats().pendingPayments }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Pendientes</p>
+                    </div>
+                </div>
+                <!-- GRÁFICO DE PASTEL -->
+                <div class="h-40 flex justify-center">
+                    <canvas id="paymentChart"></canvas>
+                </div>
             </div>
         </div>
-        <table class="w-full text-left">
-            <thead class="bg-slate-900/50">
-                <tr>
-                    <th class="p-4 text-slate-400 text-sm">Total Clases</th>
-                    <th class="p-4 text-slate-400 text-sm">Con Cupos</th>
-                    <th class="p-4 text-slate-400 text-sm">Completas</th>
-                    <th class="p-4 text-slate-400 text-sm">Tasa Ocupación</th>
-                    <th class="p-4 text-slate-400 text-sm">Total Inscriptos</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800">
-                <tr class="hover:bg-slate-800/30">
-                    <td class="p-4">
-                        <span class="text-5xl font-bold text-yellow-400">{{ stats().totalClasses }}</span>
-                    </td>
-                    <td class="p-4">
-                        <span class="px-4 py-2 rounded-lg text-lg bg-cyan-400/20 text-cyan-400 font-bold">
-                            {{ stats().classesWithAvailableSpots }}
-                        </span>
-                    </td>
-                    <td class="p-4">
-                        <span class="px-4 py-2 rounded-lg text-lg bg-orange-400/20 text-orange-400 font-bold">
-                            {{ stats().fullClasses }}
-                        </span>
-                    </td>
-                    <td class="p-4">
-                        <span class="text-5xl font-bold text-cyan-400">{{ stats().occupancyRate }}%</span>
-                    </td>
-                    <td class="p-4">
-                        <span class="px-4 py-2 rounded-lg text-lg bg-green-400/20 text-green-400 font-bold">
-                            {{ stats().totalEnrollments }}
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- PAGOS -->
-    <div class="glass-card overflow-hidden">
-        <div class="bg-slate-800/50 p-4 flex items-center gap-4">
-            <mat-icon class="text-yellow-400 text-3xl">payments</mat-icon>
-            <div>
-                <h3 class="text-xl font-bold text-yellow-400">Pagos e Ingresos</h3>
-                <p class="text-sm text-slate-400">Resumen financiero</p>
-            </div>
-        </div>
-        <table class="w-full text-left">
-            <thead class="bg-slate-900/50">
-                <tr>
-                    <th class="p-4 text-slate-400 text-sm">Ingresos Totales</th>
-                    <th class="p-4 text-slate-400 text-sm">Total Pagos</th>
-                    <th class="p-4 text-slate-400 text-sm">Aprobados</th>
-                    <th class="p-4 text-slate-400 text-sm">Pendientes</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800">
-                <tr class="hover:bg-slate-800/30">
-                    <td class="p-4">
-                        <span class="text-5xl font-bold text-green-400">{{ formatCurrency(stats().totalRevenue)
-                            }}</span>
-                    </td>
-                    <td class="p-4">
-                        <span class="text-5xl font-bold text-orange-400">{{ stats().totalPayments }}</span>
-                    </td>
-                    <td class="p-4">
-                        <span class="px-4 py-2 rounded-lg text-lg bg-green-400/20 text-green-400 font-bold">
-                            {{ stats().paidPayments }}
-                        </span>
-                    </td>
-                    <td class="p-4">
-                        <span class="px-4 py-2 rounded-lg text-lg bg-red-400/20 text-red-400 font-bold">
-                            {{ stats().pendingPayments }}
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
     </div>
     }
 </div>

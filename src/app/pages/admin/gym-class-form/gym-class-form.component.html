@@ -1,15 +1,19 @@
-<div class="mb-6">
+<!-- src/app/pages/admin/gym-class-form/gym-class-form.component.html -->
+
+<div class="mb-6 pb-4 border-b border-slate-700">
   <h2 class="text-2xl font-bold text-white">
-    {{ isEditMode ? '✏️ Editar Clase' : '➕ Nueva Clase' }}
+    {{ isEditMode ? '✏️ Editar Turno' : '➕ Nuevo Turno de Clase' }}
   </h2>
-  <p class="text-slate-400 text-sm mt-1">
-    {{ isEditMode ? 'Modificá los datos de esta clase' : 'Completá los datos para crear una nueva clase' }}
+  <p class="text-slate-300 text-base mt-2"> <!-- ✅ Texto más grande y claro -->
+    {{ isEditMode ? 'Modificá el día, hora y capacidad de este turno' : 'Seleccioná una clase existente o creá una
+    nueva' }}
   </p>
 </div>
 
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
-  <!-- ✅ NUEVO: Mostrar inscriptos actuales si es edición -->
-  @if (isEditMode && gymClassToEdit) {
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+  <!-- ✅ MOSTRAR INSCRIPTOS ACTUALES SI ES EDICIÓN -->
+  @if (isEditMode && gymClassToEdit && gymClassToEdit.currentEnrollments > 0) {
   <div class="glass-card p-4 mb-4 bg-blue-500/10 border border-blue-400/30">
     <div class="flex items-center gap-2">
       <i class="fas fa-users text-blue-400"></i>
@@ -22,86 +26,135 @@
     </p>
   </div>
   }
-
-  @if (!isEditMode && !selectedExistingClassId && !form.get('nombre')?.value) {
-  <div class="glass-card p-4">
-    <label class="block text-sm font-medium text-zinc-400 mb-2">
-      📋 ¿Es una clase existente? (opcional)
+  <!-- ✅ PASO 1: SELECCIONAR CLASE -->
+  <div class="glass-card p-5 border-l-4 border-blue-500">
+    <label class="block text-sm font-bold text-blue-400 mb-3 uppercase tracking-wide">
+      📋 1. Tipo de Clase
     </label>
-    <select (change)="onExistingClassChange($event)" class="input-field w-full">
-      <option [value]="0">Seleccionar clase...</option>
-      @for (cls of existingClasses; track cls.id) {
-      <option [value]="cls.id">
-        {{ cls.nombre }}
-      </option>
-      }
-    </select>
-  </div>
-  }
+    @if (isEditMode && gymClassToEdit) {
+    <div class="glass-card p-4 mb-6 bg-yellow-500/10 border border-yellow-400/30">
+      <div class="flex items-center gap-3">
+        <h3 class="text-2xl font-bold text-yellow-400">{{ gymClassToEdit.nombre }}</h3>
+      </div>
+    </div>
+    }
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    @if (!isEditMode && !selectedExistingClassId && !isNewClassMode) {
+    <!-- ESTADO INICIAL: Mostrar opciones -->
+    <div class="space-y-3">
+      <select (change)="onExistingClassChange($event)" class="input-field w-full font-medium">
+        <option [value]="0">✨ Seleccionar clase existente...</option>
+        @for (cls of existingClasses; track cls.id) {
+        <option [value]="cls.id">
+          {{ cls.nombre }} ({{ cls.duracionMinutos }} min)
+        </option>
+        }
+      </select>
+
+      <div class="flex items-center gap-3">
+        <div class="flex-1 h-px bg-slate-700"></div>
+        <span class="text-xs text-slate-500 uppercase">o</span>
+        <div class="flex-1 h-px bg-slate-700"></div>
+      </div>
+
+      <button type="button" (click)="enableNewClassMode()" class="w-full py-2.5 border-2 border-dashed border-slate-600 text-slate-400 
+          hover:border-yellow-400 hover:text-yellow-400 transition rounded-lg text-sm font-medium">
+        + Crear nueva clase
+      </button>
+    </div>
+    } @else if (isNewClassMode) {
+    <!-- MODO NUEVA CLASE: Input de nombre -->
     <div>
-      <label class="block text-sm font-medium text-zinc-400 mb-1">Nombre</label>
-      <input type="text" formControlName="nombre" (input)="onNombreInput()" class="input-field w-full"
-        placeholder="Ej: Yoga, CrossFit, Funcional...">
-      @if (form.get('nombre')?.invalid && form.get('nombre')?.touched) {
-      <p class="text-red-400 text-xs mt-1">El nombre es requerido (mínimo 2 caracteres)</p>
+      <label class="block text-xs text-slate-400 mb-1">Nombre de la nueva clase</label>
+      <input type="text" formControlName="nombre" (input)="onNombreInput()" class="input-field w-full" placeholder="">
+    </div>
+    } @else if (selectedExistingClassId) {
+    <!-- CLASE EXISTENTE SELECCIONADA -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <i class="fas fa-check-circle text-green-400"></i>
+          <span class="text-white font-medium">{{ form.get('nombre')?.value }}</span>
+        </div>
+        <button type="button" (click)="resetToNewClassMode()" class="text-xs text-slate-400 hover:text-white underline">
+          Cambiar
+        </button>
+      </div>
+
+      <!-- ✅ AVISO DE TURNOS EXISTENTES -->
+      @if (existingTurnosForClass.length > 0) {
+      <div class="bg-slate-900/50 rounded-lg p-3 border border-slate-700">
+        <p class="text-xs text-slate-400 mb-2 flex items-center gap-2">
+          <i class="fas fa-info-circle text-blue-400"></i>
+          Esta clase ya tiene {{ existingTurnosForClass.length }} horario(s):
+        </p>
+        <div class="flex flex-wrap gap-2">
+          @for (turno of existingTurnosForClass; track turno.hora) {
+          <span class="px-2 py-1 bg-slate-800 rounded text-xs text-slate-300">
+            {{ days[turno.dia].label }} {{ turno.hora }}
+          </span>
+          }
+        </div>
+      </div>
       }
     </div>
-
-    <div>
-      <label class="block text-sm font-medium text-zinc-400 mb-1">Duración (minutos)</label>
-      <input type="number" formControlName="duracionMinutos" class="input-field w-full" min="10" max="180">
-    </div>
-  </div>
-
-  <div>
-    <label class="block text-sm font-medium text-zinc-400 mb-1">Descripción</label>
-    <textarea formControlName="descripcion" class="input-field w-full h-24"
-      placeholder="Describe la clase..."></textarea>
-    @if (form.get('descripcion')?.invalid && form.get('descripcion')?.touched) {
-    <p class="text-red-400 text-xs mt-1">La descripción es requerida</p>
     }
   </div>
 
+  <!-- ✅ PASO 2: DETALLES DEL TURNO -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <label class="block text-sm font-medium text-zinc-400 mb-1">
-        Imagen
-      </label>
-      <input type="text" formControlName="imageUrl" class="input-field w-full bg-slate-900 cursor-not-allowed" readonly>
-    </div>
-
-    <div>
-      <label class="block text-sm font-medium text-zinc-400 mb-1">Capacidad Máxima</label>
-      <input type="number" formControlName="maxCapacity" class="input-field w-full" min="1" max="50"
-        [min]="isEditMode ? (gymClassToEdit?.currentEnrollments ?? 1) : 1">
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <label class="block text-sm font-medium text-zinc-400 mb-1">Día de la Semana</label>
+      <label class="block text-sm font-medium text-zinc-400 mb-1">📅 Día de la Semana</label>
       <select formControlName="dia" class="input-field w-full">
         @for (day of days; track day.value) {
         <option [ngValue]="day.value">{{ day.label }}</option>
         }
       </select>
-      @if (form.get('dia')?.invalid && form.get('dia')?.touched) {
-      <p class="text-red-400 text-xs mt-1">El día es requerido</p>
-      }
     </div>
-
     <div>
-      <label class="block text-sm font-medium text-zinc-400 mb-1">Hora</label>
+      <label class="block text-sm font-medium text-zinc-400 mb-1">⏰ Hora de Inicio</label>
       <input type="time" formControlName="hora" class="input-field w-full">
-      @if (form.get('hora')?.invalid && form.get('hora')?.touched) {
-      <p class="text-red-400 text-xs mt-1">Ingresa una hora válida (HH:MM)</p>
-      }
     </div>
   </div>
 
-  <div class="pt-4 flex justify-end gap-3">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-zinc-400 mb-1">👥 Capacidad Máxima</label>
+      <input type="number" formControlName="maxCapacity" class="input-field w-full" min="1" max="50"
+        [min]="isEditMode ? (gymClassToEdit?.currentEnrollments ?? 1) : 1">
+      @if (isEditMode && gymClassToEdit && gymClassToEdit.currentEnrollments > 0) {
+      <p class="text-xs text-slate-500 mt-1">
+        Mínimo: {{ gymClassToEdit.currentEnrollments }}
+      </p>
+      }
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-zinc-400 mb-1">
+        ⏱️ Duración (minutos)
+      </label>
+      <input type="number" formControlName="duracionMinutos" class="input-field w-full" min="10" max="180"
+        [class.bg-slate-900]="isEditMode || selectedExistingClassId !== null"
+        [class.cursor-not-allowed]="isEditMode || selectedExistingClassId !== null"
+        [readonly]="isEditMode || selectedExistingClassId !== null">
+    </div>
+  </div>
+
+  <!-- ✅ CAMPOS AUTOMÁTICOS / BLOQUEADOS -->
+  <div>
+    <label class="block text-sm font-medium text-zinc-400 mb-1">
+      📝 Descripción
+    </label>
+    <textarea formControlName="descripcion" class="input-field w-full h-20"
+      [class.bg-slate-900]="isEditMode || selectedExistingClassId !== null"
+      [class.cursor-not-allowed]="isEditMode || selectedExistingClassId !== null"
+      [readonly]="isEditMode || selectedExistingClassId !== null"></textarea>
+  </div>
+
+  <!-- ✅ imageUrl OCULTO -->
+  <input type="hidden" formControlName="imageUrl">
+
+  <!-- ✅ BOTONES -->
+  <div class="pt-4 flex justify-end gap-3 border-t border-slate-700">
     <button type="button" (click)="close()" [disabled]="isLoading"
       class="px-4 py-2 text-zinc-400 hover:text-white transition">
       Cancelar
@@ -110,7 +163,7 @@
       transition-all duration-200
       hover:bg-yellow-400 hover:text-slate-900
       hover:shadow-lg hover:shadow-yellow-500/30">
-      {{ isLoading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear') }}
+      {{ isLoading ? 'Guardando...' : (isEditMode ? 'Actualizar Turno' : 'Crear Turno') }}
     </button>
   </div>
 </form>

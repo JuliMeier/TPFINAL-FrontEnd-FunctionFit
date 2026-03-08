@@ -190,4 +190,9 @@ export default class GymClassManagement {
     };
     return images[nombre] ?? 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=150&fit=crop';
   }
+
+  // ✅ AGREGAR ESTE MÉTODO AL COMPONENTE
+  getOccupancyPercent(turno: GymClass): number {
+    return Math.round((turno.currentEnrollments / turno.maxCapacity) * 100);
+  }
 }
