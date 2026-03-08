@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
-import { CreateGymClassRequest, GymClass } from '../shared/interfaces';
+import { CreateGymClassRequest, GymClass, GymClassDeleteSummary, GymClassEnrolledUsers } from '../shared/interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class GymClassService {
@@ -27,5 +27,13 @@ export class GymClassService {
 
   deleteGymClass(id: number): Observable<any> {
     return this.http.delete(`${this.API_URL}/gymclass/${id}`);
+  }
+  // Agregar al final del servicio
+  getDeleteSummary(id: number): Observable<GymClassDeleteSummary> {
+    return this.http.get<GymClassDeleteSummary>(`${this.API_URL}/gymclass/${id}/delete-summary`);
+  }
+
+  getEnrolledUsers(id: number): Observable<GymClassEnrolledUsers> {
+    return this.http.get<GymClassEnrolledUsers>(`${this.API_URL}/gymclass/${id}/enrolled-users`);
   }
 }

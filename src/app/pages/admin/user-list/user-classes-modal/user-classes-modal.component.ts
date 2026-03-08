@@ -21,7 +21,6 @@ interface ModalData {
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-2xl font-bold">
-        <!-- ✅ AGREGAR CANTIDAD DE CLASES ENTRE PARÉNTESIS -->
         Clases de {{ data.userName }} 
         <span class="text-yellow-400">({{ classesCount() }})</span>
       </h2>
@@ -45,7 +44,7 @@ interface ModalData {
       </div>
     }
 
-    <!-- Lista de clases -->
+    <!-- ✅ Lista de clases CON BOTÓN DE BAJA (ÍCONO FONTAWESOME) -->
     @if (!loading() && classes().length > 0) {
       <div class="space-y-2 max-h-96 overflow-y-auto pr-2">
         @for (cls of classes(); track cls.id) {
@@ -53,21 +52,25 @@ interface ModalData {
           hover:bg-slate-700/50 transition-colors duration-200">
             <div>
               <p class="font-semibold text-lg">{{ cls.nombre }}</p>
-              <p class="text-sm text-slate-400">
+              <p class="text-sm text-slate-500">
                 {{ getDayName(cls.dia) }} · {{ cls.hora }}
               </p>
             </div>
+            <!-- ✅ BOTÓN DE BAJA CON ÍCONO FONTAWESOME (igual que user-list) -->
             <button
               (click)="unenroll(cls.id, cls.nombre)"
               [disabled]="unrollingId() === cls.id"
-              class="px-4 py-2 bg-red-500/20 text-red-400
-              border border-red-500/30 rounded-lg
-              hover:bg-red-500 hover:text-white
-              transition-all duration-200
-              disabled:opacity-50 disabled:cursor-not-allowed
-              text-sm font-medium">
-              {{ unrollingId() === cls.id ? '⏳' : '🗑️' }}
-              {{ unrollingId() === cls.id ? '...' : 'Dar de baja' }}
+              class="w-10 h-10 rounded-lg flex items-center justify-center
+                     text-red-500 hover:text-red-400 
+                     hover:bg-red-500/20 
+                     transition-all duration-200
+                     disabled:opacity-50 disabled:cursor-not-allowed" 
+              title="Dar de baja">
+              @if (unrollingId() === cls.id) {
+                <mat-icon class="animate-spin text-lg">progress_activity</mat-icon>
+              } @else {
+                <i class="fas fa-trash-alt text-lg"></i>
+              }
             </button>
           </div>
         }
@@ -106,7 +109,7 @@ export class UserClassesModalComponent {
   private dialogRef = inject(MatDialogRef<UserClassesModalComponent>);
 
   classes = signal<GymClassSummary[]>([]);
-  classesCount = signal(0);  // ✅ NUEVO SIGNAL PARA EL CONTADOR
+  classesCount = signal(0);
   loading = signal(true);
   unrollingId = signal<number | null>(null);
 
@@ -120,7 +123,7 @@ export class UserClassesModalComponent {
       const profile = await this.adminUserService.getUserProfile(this.data.userId);
       const enrolledClasses = profile.enrolledClasses || [];
       this.classes.set(enrolledClasses);
-      this.classesCount.set(enrolledClasses.length);  // ✅ ACTUALIZAR CONTADOR
+      this.classesCount.set(enrolledClasses.length);
     } catch (error: any) {
       this.toastr.error('Error al cargar las clases', 'Error');
     } finally {
@@ -134,7 +137,7 @@ export class UserClassesModalComponent {
       const result = await this.adminUserService.unenrollUser(this.data.userId, classId);
       if (result.success) {
         this.toastr.success(`Usuario dado de baja de ${className}`, 'Éxito');
-        await this.loadClasses();  // ✅ RECARGAR PARA ACTUALIZAR CONTADOR
+        await this.loadClasses();
       } else {
         this.toastr.error(result.message || 'No se pudo dar de baja', 'Error');
       }

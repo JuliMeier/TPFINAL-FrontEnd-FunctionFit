@@ -3,16 +3,8 @@
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <h1 class="text-3xl font-bold">Administración de Clases</h1>
     <div class="flex gap-3">
-      <input
-        type="text"
-        (input)="updateSearch($event)"
-        placeholder="Buscar por nombre..."
-        class="input-field max-w-xs text-base py-2.5">
-      
       <!-- ✅ BOTÓN NUEVA CLASE -->
-      <button
-        (click)="createNewClass()"
-        class="btn-primary px-6 py-3 text-base font-semibold
+      <button (click)="createNewClass()" class="btn-primary px-6 py-3 text-base font-semibold
         transition-all duration-200
         hover:bg-yellow-400 hover:text-slate-900
         hover:shadow-lg hover:shadow-yellow-500/30">
@@ -21,106 +13,196 @@
     </div>
   </div>
 
+  <!-- ✅ FILTRO DE DÍAS (SIN DOMINGO) -->
+  <div class="w-full max-w-3xl mx-auto mb-6">
+    <div class="flex items-center justify-center gap-2 overflow-x-auto pb-2">
+      <button (click)="filterByDay(null)" [class]="selectedDay() === null ?
+        'bg-blue-500 text-white font-bold' :
+        'bg-slate-700 text-slate-300 hover:bg-slate-600'"
+        class="px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-200 text-sm">
+        📅 Todos
+      </button>
+      @for (day of filterDays; track day.value) {
+      <!-- ✅ OCULTAR DOMINGO (value === 7) -->
+      @if (day.value !== 7) {
+      <button (click)="filterByDay(day.value)" [class]="selectedDay() === day.value ?
+            'bg-blue-500 text-white font-bold' :
+            'bg-slate-700 text-slate-300 hover:bg-slate-600'"
+        class="px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-200 text-sm">
+        {{ day.label }}
+        @if (isToday(day.value)) {
+        <span class="ml-1 text-xs">🔥</span>
+        }
+      </button>
+      }
+      }
+    </div>
+  </div>
+
   <!-- Modal con el Formulario -->
   @if (showForm()) {
-    <div class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-      <div class="w-full max-w-2xl p-8 relative rounded-2xl
+  <div class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+    <div class="w-full max-w-2xl p-8 relative rounded-2xl
       bg-blue-500/10
       border border-blue-400/30
       backdrop-blur-xl
       shadow-2xl shadow-blue-500/20">
-        <button
-          (click)="onFormClose()"
-          class="absolute top-4 right-4 text-zinc-400 hover:text-white text-sm">
-          ✕
-        </button>
-        <app-gym-class-form
-          [gymClassToEdit]="selectedGymClass"
-          (onClose)="onFormClose()" />
-      </div>
+      <button (click)="onFormClose()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-sm">
+        ✕
+      </button>
+      <app-gym-class-form [gymClassToEdit]="selectedGymClass" (onClose)="onFormClose()" />
     </div>
+  </div>
   }
 
   <!-- ✅ TABLA AGRUPADA POR TIPO DE CLASE -->
   <div class="glass-card overflow-hidden">
-    @for (group of groupedClasses(); track group.nombre) {
-      <div class="border-b border-slate-700 last:border-0">
-        <!-- Header del Grupo -->
-        <div class="bg-slate-800/50 p-4 flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <img 
-              [src]="getClassImage(group.nombre)" 
-              [alt]="group.nombre"
-              class="w-12 h-12 rounded-lg object-cover border border-slate-600">
-            <div>
-              <h3 class="text-xl font-bold text-yellow-400">{{ group.nombre }}</h3>
-              <p class="text-sm text-slate-400">
-                {{ group.descripcion }} · {{ group.duracionMinutos }} min · 
-                {{ group.turnos.length }} horario(s)
-              </p>
-            </div>
+    @for (group of filteredGroupedClasses(); track group.nombre) {
+    <div class="border-b border-slate-700 last:border-0">
+      <!-- Header del Grupo -->
+      <div class="bg-slate-800/50 p-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img [src]="getClassImage(group.nombre)" [alt]="group.nombre"
+            class="w-12 h-12 rounded-lg object-cover border border-slate-600">
+          <div>
+            <h3 class="text-xl font-bold text-yellow-400">{{ group.nombre }}</h3>
+            <p class="text-sm text-slate-400">
+              {{ group.descripcion }} · {{ group.duracionMinutos }} min ·
+              {{ group.turnos.length }} horario(s)
+            </p>
           </div>
         </div>
-        
-        <!-- Horarios del Grupo -->
-        <table class="w-full text-left">
-          <thead class="bg-slate-900/50">
-            <tr>
-              <th class="p-4 text-slate-400 text-sm">Día</th>
-              <th class="p-4 text-slate-400 text-sm">Hora</th>
-              <th class="p-4 text-slate-400 text-sm">Duración</th>
-              <th class="p-4 text-slate-400 text-sm">Capacidad</th>
-              <th class="p-4 text-slate-400 text-sm text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800">
-            @for (turno of group.turnos; track turno.id) {
-              <tr class="hover:bg-slate-800/30">
-                <td class="p-4">{{ days[turno.dia] }}</td>
-                <td class="p-4">{{ turno.hora }}</td>
-                <td class="p-4">{{ turno.duracionMinutos }} min</td>
-                <td class="p-4">
-                  <span class="px-3 py-1 rounded text-sm bg-yellow-400/20 text-slate-800">
-                    {{ turno.currentEnrollments }}/{{ turno.maxCapacity }}
-                  </span>
-                </td>
-                <td class="p-4 text-right space-x-3">
-                  <button (click)="editGymClass(turno)" 
-                    class="text-slate-400 hover:text-yellow-400">Editar</button>
-                  <button (click)="confirmDelete(turno.id)" 
-                    class="text-red-400 hover:text-red-300">Eliminar</button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
       </div>
+      <table class="w-full text-left">
+        <thead class="bg-slate-900/50">
+          <tr>
+            <th class="p-4 text-slate-400 text-sm w-[25%]">Día</th>
+            <th class="p-4 text-slate-400 text-sm w-[25%]">Hora</th>
+            <th class="p-4 text-slate-400 text-sm w-[25%]">Capacidad</th>
+            <th class="p-4 text-slate-400 text-sm text-right w-[25%]">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800">
+          @for (turno of group.turnos; track turno.id) {
+          <tr class="hover:bg-slate-800/30 transition-colors duration-200">
+            <td class="p-4 text-slate-800 font-medium">
+              <!-- ✅ USAR days[turno.dia] para mostrar el nombre del día -->
+              {{ days[turno.dia] }}
+            </td>
+            <td class="p-4 text-slate-800 font-mono text-base">
+              {{ turno.hora }}
+            </td>
+            <td class="p-4">
+              <span
+                class="px-4 py-2 rounded-lg text-sm font-bold bg-yellow-400/20 text-slate-800 border border-yellow-400/30">
+                {{ turno.currentEnrollments }}/{{ turno.maxCapacity }}
+              </span>
+            </td>
+            <!-- ✅ ACCIONES CON ÍCONOS -->
+            <td class="p-4 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button (click)="editGymClass(turno)" class="w-10 h-10 rounded-lg flex items-center justify-center
+                      text-blue-400 hover:text-blue-300
+                      hover:bg-blue-500/20
+                      transition-all duration-200" title="Editar clase">
+                  <i class="fas fa-edit text-lg"></i>
+                </button>
+                <button (click)="viewEnrolledUsers(turno)" class="w-10 h-10 rounded-lg flex items-center justify-center
+                      text-purple-400 hover:text-purple-300
+                      hover:bg-purple-500/20
+                      transition-all duration-200" title="Ver inscriptos">
+                  <i class="fas fa-users text-lg"></i>
+                </button>
+                <button (click)="confirmDelete(turno.id)" class="w-10 h-10 rounded-lg flex items-center justify-center
+                      text-red-500 hover:text-red-400
+                      hover:bg-red-500/20
+                      transition-all duration-200" title="Eliminar clase">
+                  <i class="fas fa-trash-alt text-lg"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
     } @empty {
-      <div class="p-16 text-center text-slate-500 italic text-lg">
-        No hay clases registradas. ¡Creá la primera!
-      </div>
+    <div class="p-16 text-center text-slate-500 italic text-lg">
+      @if (selectedDay() !== null) {
+      <span>No hay clases para el día seleccionado</span>
+      } @else {
+      <span>No hay clases registradas. ¡Creá la primera!</span>
+      }
+    </div>
     }
   </div>
 
   <!-- Modal de confirmación -->
   @if (showConfirmDialog) {
-    <div class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-      <div class="glass-card max-w-md w-full p-8">
-        <h2 class="text-xl font-bold mb-4">Confirmar eliminación</h2>
-        <p class="mb-6 text-base">¿Estás seguro de que querés eliminar esta clase?</p>
-        <div class="flex justify-end gap-4">
-          <button
-            (click)="cancelDelete()"
-            class="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
-            Cancelar
-          </button>
-          <button
-            (click)="deleteGymClass(pendingDeleteId)"
-            class="px-5 py-2.5 bg-yellow-400 text-slate-900 rounded-lg hover:bg-yellow-500 transition">
-            Confirmar
-          </button>
+  <div class="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+    <div class="glass-card max-w-md w-full p-8">
+      <h2 class="text-xl font-bold mb-4">Confirmar eliminación</h2>
+      <div class="bg-slate-800/50 rounded-xl p-4 mb-6 space-y-3">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Clase:</span>
+          <span class="text-white">{{ deleteSummary()?.className ?? 'Cargando...' }}</span>
         </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Horario:</span>
+          <span class="text-white">{{ deleteSummary()?.dayAndTime ?? '-' }}</span>
+        </div>
+        @if ((deleteSummary()?.enrolledUsersCount ?? 0) > 0) {
+        <div class="flex justify-between items-center bg-blue-500/10
+            border border-blue-500/30 rounded-lg p-2">
+          <span class="text-blue-400">
+            <i class="fas fa-users mr-2"></i>Usuarios Inscriptos
+          </span>
+          <span class="text-blue-400 font-bold">
+            {{ deleteSummary()?.enrolledUsersCount }}
+          </span>
+        </div>
+        <div class="mt-2 text-sm text-slate-400">
+          @for (user of deleteSummary()?.enrolledUsers; track user) {
+          <div class="py-1">• {{ user }}</div>
+          }
+        </div>
+        } @else {
+        <div class="flex justify-between items-center bg-green-500/10
+            border border-green-500/30 rounded-lg p-2">
+          <span class="text-green-400">
+            <i class="fas fa-check-circle mr-2"></i>Sin inscriptos
+          </span>
+        </div>
+        }
+      </div>
+      @if ((deleteSummary()?.warnings ?? []).length > 0) {
+      <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+        <h3 class="text-red-400 font-semibold mb-2 flex items-center gap-2">
+          <i class="fas fa-triangle-exclamation"></i>
+          Consecuencias de esta acción:
+        </h3>
+        <ul class="space-y-1">
+          @for (warning of deleteSummary()?.warnings; track warning) {
+          <li class="text-red-300 text-sm flex items-start gap-2">
+            <span class="text-red-400 mt-1">•</span>
+            {{ warning }}
+          </li>
+          }
+        </ul>
+      </div>
+      }
+      <p class="mb-6 text-base">¿Estás seguro de que querés eliminar esta clase?</p>
+      <div class="flex justify-end gap-4">
+        <button (click)="cancelDelete()"
+          class="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition">
+          Cancelar
+        </button>
+        <button (click)="deleteGymClass(pendingDeleteId)"
+          class="px-5 py-2.5 bg-yellow-400 text-slate-900 rounded-lg hover:bg-yellow-500 transition">
+          Confirmar
+        </button>
       </div>
     </div>
+  </div>
   }
 </div>

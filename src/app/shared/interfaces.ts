@@ -226,3 +226,29 @@ export interface UserProfileResponse {
   enrolledClassesCount: number;
   enrolledClasses: GymClassSummary[];
 }
+
+export interface GymClassDeleteSummary {
+  gymClassId: number;
+  className: string;
+  dayAndTime: string;
+  enrolledUsersCount: number;
+  enrolledUsers: string[];
+  warnings: string[];
+}
+
+export interface GymClassEnrolledUsers {
+  gymClassId: number;
+  className: string;
+  dayAndTime: string;
+  maxCapacity: number;
+  currentEnrollments: number;
+  users: EnrolledUserDto[];
+}
+
+export interface EnrolledUserDto {
+  id: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  planName: string;
+}

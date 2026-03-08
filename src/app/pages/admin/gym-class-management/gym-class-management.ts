@@ -4,7 +4,9 @@ import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { GymClassFormComponent } from '../gym-class-form/gym-class-form.component';
-import { GymClass } from '../../../shared/interfaces';
+import { GymClass, GymClassDeleteSummary, GroupedGymClass } from '../../../shared/interfaces';
+import { MatDialog } from '@angular/material/dialog';
+import { EnrolledUsersModalComponent } from './enrolled-users-modal/enrolled-users-modal.component';
 
 @Component({
   selector: 'app-gym-class-management',
@@ -15,18 +17,42 @@ import { GymClass } from '../../../shared/interfaces';
 export default class GymClassManagement {
   private gymClassService = inject(GymClassService);
   private toastr = inject(ToastrService);
+  private dialog = inject(MatDialog);
 
-  searchTerm = signal('');
+  deleteSummary = signal<GymClassDeleteSummary | null>(null);
   gymClasses = signal<GymClass[]>([]);
   showForm = signal(false);
   selectedGymClass: GymClass | null = null;
   showConfirmDialog = false;
   pendingDeleteId: number | null = null;
 
-  days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  // ✅ ARRAY SIMPLE PARA MOSTRAR EN TABLA (índice = día del backend)
+  // Backend: 1=Lunes, 2=Martes... 7=Domingo
+  days = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+  // ✅ ARRAY DE OBJETOS PARA LOS BOTONES DEL FILTRO
+  filterDays = [
+    { value: 1, label: 'Lunes' },
+    { value: 2, label: 'Martes' },
+    { value: 3, label: 'Miércoles' },
+    { value: 4, label: 'Jueves' },
+    { value: 5, label: 'Viernes' },
+    { value: 6, label: 'Sábado' },
+    { value: 7, label: 'Domingo' }
+  ];
+
+  // ✅ FILTRO POR DÍA (null = todos los días)
+  selectedDay = signal<number | null>(null);
+  todayDay = signal<number>(this.getCurrentDayOfWeek());
 
   constructor() {
     this.loadGymClasses();
+  }
+
+  // ✅ MÉTODO: JS getDay() devuelve 0=Domingo, backend usa 7=Domingo
+  private getCurrentDayOfWeek(): number {
+    const jsDay = new Date().getDay();
+    return jsDay === 0 ? 7 : jsDay;
   }
 
   async loadGymClasses() {
@@ -69,19 +95,29 @@ export default class GymClassManagement {
     return Array.from(map.values());
   });
 
-  filteredGymClasses = computed(() => {
-    const term = this.searchTerm().toLowerCase();
-    const allClasses = this.gymClasses();
-    if (!allClasses || allClasses.length === 0) return [];
-    return allClasses.filter(c =>
-      (c.nombre?.toLowerCase() ?? '').includes(term) ||
-      (c.descripcion?.toLowerCase() ?? '').includes(term)
-    );
+  // ✅ FILTRAR CLASES POR DÍA SELECCIONADO
+  filteredGroupedClasses = computed(() => {
+    const selected = this.selectedDay();
+    const allGroups = this.groupedClasses();
+
+    if (!selected) return allGroups;
+
+    return allGroups
+      .map(group => ({
+        ...group,
+        turnos: group.turnos.filter(turno => turno.dia === selected)
+      }))
+      .filter(group => group.turnos.length > 0);
   });
 
-  updateSearch(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.searchTerm.set(input.value);
+  // ✅ FILTRAR POR DÍA
+  filterByDay(day: number | null) {
+    this.selectedDay.set(day);
+  }
+
+  // ✅ VERIFICAR SI ES HOY
+  isToday(dia: number): boolean {
+    return dia === this.todayDay();
   }
 
   editGymClass(gymClass: GymClass) {
@@ -89,15 +125,33 @@ export default class GymClassManagement {
     this.showForm.set(true);
   }
 
-  // ✅ NUEVA CLASE
   createNewClass() {
     this.selectedGymClass = null;
     this.showForm.set(true);
   }
 
-  confirmDelete(id: number) {
+  async confirmDelete(id: number) {
     this.pendingDeleteId = id;
-    this.showConfirmDialog = true;
+    try {
+      const summary = await this.gymClassService.getDeleteSummary(id).toPromise();
+      this.deleteSummary.set(summary ?? null);
+      this.showConfirmDialog = true;
+    } catch (err) {
+      this.toastr.error('Error al cargar información de la clase');
+      this.showConfirmDialog = true;
+    }
+  }
+
+  viewEnrolledUsers(gymClass: GymClass) {
+    const dialogRef = this.dialog.open(EnrolledUsersModalComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: {
+        classId: gymClass.id,
+        className: gymClass.nombre
+      },
+      panelClass: 'ff-confirm-dialog'
+    });
   }
 
   cancelDelete() {
@@ -125,7 +179,6 @@ export default class GymClassManagement {
     this.loadGymClasses();
   }
 
-  // ✅ MÉTODO PARA OBTENER IMAGEN SEGÚN NOMBRE
   getClassImage(nombre: string): string {
     const images: { [key: string]: string } = {
       'Yoga': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=150&fit=crop',
