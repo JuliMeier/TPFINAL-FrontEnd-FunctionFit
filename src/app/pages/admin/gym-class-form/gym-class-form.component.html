@@ -8,6 +8,20 @@
 </div>
 
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+  <!-- ✅ NUEVO: Mostrar inscriptos actuales si es edición -->
+  @if (isEditMode && gymClassToEdit) {
+  <div class="glass-card p-4 mb-4 bg-blue-500/10 border border-blue-400/30">
+    <div class="flex items-center gap-2">
+      <i class="fas fa-users text-blue-400"></i>
+      <span class="text-sm text-slate-300">
+        <strong>{{ gymClassToEdit.currentEnrollments }}</strong> usuarios inscriptos actualmente
+      </span>
+    </div>
+    <p class="text-xs text-slate-500 mt-1">
+      La capacidad no puede ser menor a {{ gymClassToEdit.currentEnrollments }}
+    </p>
+  </div>
+  }
 
   @if (!isEditMode && !selectedExistingClassId && !form.get('nombre')?.value) {
   <div class="glass-card p-4">
@@ -60,7 +74,8 @@
 
     <div>
       <label class="block text-sm font-medium text-zinc-400 mb-1">Capacidad Máxima</label>
-      <input type="number" formControlName="maxCapacity" class="input-field w-full" min="1" max="50">
+      <input type="number" formControlName="maxCapacity" class="input-field w-full" min="1" max="50"
+        [min]="isEditMode ? (gymClassToEdit?.currentEnrollments ?? 1) : 1">
     </div>
   </div>
 

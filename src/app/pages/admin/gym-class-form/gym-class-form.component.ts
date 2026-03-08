@@ -124,10 +124,24 @@ export class GymClassFormComponent implements OnInit {
       return;
     }
 
+    if (this.isEditMode && this.gymClassToEdit) {
+      const currentEnrollments = this.gymClassToEdit.currentEnrollments || 0;
+      const newCapacity = this.form.get('maxCapacity')?.value || 0;
+
+      if (newCapacity < currentEnrollments) {
+        this.toastr.error(
+          `No se puede reducir la capacidad a ${newCapacity}. ` +
+          `Hay ${currentEnrollments} usuarios inscriptos. ` +
+          `La capacidad mínima debe ser ${currentEnrollments}.`,
+          'Capacidad insuficiente'
+        );
+        return;
+      }
+    }
+
     this.isLoading = true;
     try {
       const formData = this.form.getRawValue();
-
       if (this.isEditMode) {
         if (this.gymClassToEdit) {
           await this.gymClassService.editGymClass(this.gymClassToEdit.id, formData).toPromise();
@@ -140,9 +154,8 @@ export class GymClassFormComponent implements OnInit {
       this.onClose.emit();
     } catch (err: any) {
       console.error(err);
-      const errorMessage = err?.error?.errors
-        ? Object.values(err.error.errors).flat().join(', ')
-        : (this.isEditMode ? 'Error al actualizar la clase' : 'Error al crear la clase');
+      const errorMessage = err?.error?.message
+        || (this.isEditMode ? 'Error al actualizar la clase' : 'Error al crear la clase');
       this.toastr.error(errorMessage);
     } finally {
       this.isLoading = false;
