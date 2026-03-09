@@ -1,4 +1,3 @@
-// src/app/pages/admin/gym-class-form/gym-class-form.component.ts
 
 import { Component, inject, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -28,7 +27,6 @@ export class GymClassFormComponent implements OnInit {
     { value: 4, label: 'Jueves' },
     { value: 5, label: 'Viernes' },
     { value: 6, label: 'Sábado' },
-    { value: 7, label: 'Domingo' }
   ];
 
   existingClasses: GymClass[] = [];
