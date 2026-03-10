@@ -35,12 +35,10 @@
       </div>
       <div class="relative w-16 h-16">
         <svg class="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
-          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#334155" stroke-width="3"/>
-          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#facc15" stroke-width="3"
-                  stroke-dasharray="100"
-                  [attr.stroke-dashoffset]="100 - attendancePercent"
-                  stroke-linecap="round"
-                  style="transition: stroke-dashoffset 0.5s ease"/>
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#334155" stroke-width="3" />
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#facc15" stroke-width="3" stroke-dasharray="100"
+            [attr.stroke-dashoffset]="100 - attendancePercent" stroke-linecap="round"
+            style="transition: stroke-dashoffset 0.5s ease" />
         </svg>
         <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-yellow-400">
           {{ attendancePercent }}%
@@ -62,8 +60,7 @@
       </div>
 
       <div class="w-full bg-slate-700 rounded-full h-4 overflow-hidden">
-        <div class="h-4 bg-yellow-400 transition-all duration-500 rounded-full"
-             [style.width.%]="attendancePercent">
+        <div class="h-4 bg-yellow-400 transition-all duration-500 rounded-full" [style.width.%]="attendancePercent">
         </div>
       </div>
 
@@ -90,15 +87,14 @@
       </div>
 
       <!-- Mensaje motivacional -->
-      <div class="mt-4 p-3 rounded-lg text-sm font-medium text-center"
-           [ngClass]="{
+      <div class="mt-4 p-3 rounded-lg text-sm font-medium text-center" [ngClass]="{
              'bg-green-500/10 text-green-600': attendancePercent >= 80,
              'bg-yellow-400/10 text-yellow-600': attendancePercent >= 50 && attendancePercent < 80,
              'bg-red-500/10 text-red-600': attendancePercent < 50
            }">
         {{ attendancePercent >= 80 ? '🏆 ¡Excelente mes! Seguí así' :
-           attendancePercent >= 50 ? '💪 Vas bien, podés mejorar aún más' :
-           '⚠️ Necesitás asistir más clases este mes' }}
+        attendancePercent >= 50 ? '💪 Vas bien, podés mejorar aún más' :
+        '⚠️ Necesitás asistir más clases este mes' }}
       </div>
 
     </div>
@@ -113,14 +109,17 @@
 
   <!-- RACHA -->
   <div class="rounded-2xl p-6
-              bg-gradient-to-r from-orange-500/30 to-orange-600/30
-              border border-orange-500/40
-              backdrop-blur-xl
-              shadow-2xl shadow-orange-500/10">
+bg-gradient-to-r from-orange-500/30 to-orange-600/30
+border border-orange-500/40
+backdrop-blur-xl
+shadow-2xl shadow-orange-500/10">
     <div class="flex items-center gap-3 mb-4">
       <span class="text-xl">🔥</span>
       <h3 class="text-lg font-semibold text-slate-900">Racha actual</h3>
     </div>
+
+    <!-- ✅ CASO: RACHA ACTIVA (> 0) -->
+    @if (streak > 0) {
     <p class="text-4xl font-bold text-yellow-400">
       {{ streak }}
       <span class="text-base text-slate-800">clases seguidas</span>
@@ -128,6 +127,28 @@
     <p class="text-sm text-slate-800 mt-2">
       ¡Seguí así! Evitá cancelar para mantener tu racha 🔥
     </p>
+    }
+
+    <!-- ✅ CASO: RACHA PERDIDA (= 0) -->
+    @if (streak === 0) {
+    <p class="text-4xl font-bold text-slate-600">
+      0
+      <span class="text-base text-slate-800">clases seguidas</span>
+    </p>
+    <p class="text-sm text-slate-800 mt-2">
+      ⚠️ Tu racha se perdió. ¡Volvé a empezar y no te rindas! 💪
+    </p>
+    }
+
+    <!-- ✅ CASO: SIN HISTORIAL (history.length === 0) -->
+    @if (history.length === 0) {
+    <p class="text-4xl font-bold text-slate-600">
+      --
+    </p>
+    <p class="text-sm text-slate-800 mt-2">
+      📭 Aún no tenés clases en tu historial. ¡Reservá tu primera clase!
+    </p>
+    }
   </div>
 
   <!-- TIMELINE -->
@@ -135,11 +156,9 @@
     <h2 class="text-xl font-bold text-slate-900 mb-6">Últimas reservas</h2>
 
     <div class="space-y-4">
-      <div *ngFor="let item of history"
-           class="relative pl-8 border-l-2 border-slate-700">
+      <div *ngFor="let item of history" class="relative pl-8 border-l-2 border-slate-700">
 
-        <div class="absolute -left-[7px] top-6 w-3 h-3 rounded-full"
-             [ngClass]="{
+        <div class="absolute -left-[7px] top-6 w-3 h-3 rounded-full" [ngClass]="{
                'bg-green-500': item.status === 'Active',
                'bg-red-500': item.status === 'Cancelled'
              }">
@@ -163,8 +182,7 @@
             </div>
           </div>
 
-          <span class="px-4 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200"
-            [ngClass]="{
+          <span class="px-4 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200" [ngClass]="{
               'bg-green-500/10 text-green-400 border-green-500/30 hover:bg-green-500 hover:text-white': item.status === 'Active',
               'bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500 hover:text-white': item.status === 'Cancelled'
             }">
@@ -174,8 +192,7 @@
         </div>
       </div>
 
-      <div *ngIf="history.length === 0"
-           class="glass-card p-16 text-center text-slate-800 italic text-lg">
+      <div *ngIf="history.length === 0" class="glass-card p-16 text-center text-slate-800 italic text-lg">
         No hay reservas registradas todavía.
       </div>
 
