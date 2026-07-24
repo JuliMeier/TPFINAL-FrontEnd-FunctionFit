@@ -26,8 +26,6 @@ export default class PagosComponent implements OnInit {
   typePlan = TypePlan;
   subscription = signal<any>(null);
 
-  esperandoConfirmacion = signal(false);
-
   ngOnInit() {
     this.loadPlans();
     this.checkPaymentStatus();
@@ -61,52 +59,52 @@ export default class PagosComponent implements OnInit {
   }
 
   checkPaymentStatus() {
-    // Escuchamos los parámetros de la URL
     this.route.queryParams.subscribe(params => {
-      const paymentId = params['payment_id'];
-      const status = params['status'];
+      const sessionId = params['session_id'];
+      const cancelled = params['cancelled'];
 
-      // Si el pago fue aprobado y tenemos el ID, confirmamos con el backend
-      if (status === 'approved' && paymentId) {
-        this.confirmarPagoEnServidor(paymentId);
-      } else if (status === 'failure') {
-        this.toastr.error('El pago fue rechazado. Por favor, intenta nuevamente.');
+      if (sessionId) {
+        this.confirmarPagoEnServidor(sessionId);
+      } else if (cancelled) {
+        this.toastr.warning('Cancelaste el proceso de pago. Podés intentarlo cuando quieras.');
       }
     });
   }
 
-  confirmarPagoEnServidor(paymentId: string) {
-
-    if (!paymentId) {
-      this.toastr.warning('No se recibió el ID del pago. No se puede confirmar.');
+  confirmarPagoEnServidor(sessionId: string) {
+    if (!sessionId) {
+      this.toastr.warning('No se recibió el ID de sesión. No se puede confirmar.');
       return;
     }
 
     this.loading.set(true);
-    this.paymentService.confirmarPago(paymentId).subscribe({
-      next: (res) => {
+    this.paymentService.confirmarPago(sessionId).subscribe({
+      next: () => {
         this.loading.set(false);
-        this.esperandoConfirmacion.set(false); // Ocultamos el cuadro
-        this.checkCurrentSubscription(); // Refrescar el estado de la suscripción
+        this.checkCurrentSubscription();
         this.toastr.success('¡Pago confirmado exitosamente!');
         this.router.navigate(['/home-socio']);
       },
-      error: (err) => {
+      error: () => {
         this.loading.set(false);
-        this.toastr.error('No se pudo validar el pago. Verifica el número e intenta de nuevo.');
+        this.toastr.error('No se pudo validar el pago. Por favor contactá soporte.');
       }
     });
   }
 
   buyPlan(planId: number) {
     this.loading.set(true);
-    this.paymentService.createPreference(planId).subscribe({
+    this.paymentService.createCheckoutSession(planId).subscribe({
       next: (res) => {
         this.loading.set(false);
-        window.open(res.initPoint, '_blank');
-        this.esperandoConfirmacion.set(true);
+        window.location.href = res.initPoint;
       },
-      error: () => this.loading.set(false)
+      error: (err) => {
+        this.loading.set(false);
+        console.error('Error al crear sesión de Stripe:', err);
+        console.error('Detalle del error:', err?.error);
+        this.toastr.error('No se pudo iniciar el proceso de pago. Revisá la consola para más detalles.');
+      }
     });
   }
 

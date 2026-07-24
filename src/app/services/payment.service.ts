@@ -28,9 +28,9 @@ export class PaymentService {
         return this.http.get<any>(`${this.API_URL}/Payment/active/${userId}`);
     }
 
-    createPreference(planId: number): Observable<{ initPoint: string }> {
-        return this.http.post<{ initPoint: string }>(
-            `${this.API_URL}/Payment/mercadopago`,
+    createCheckoutSession(planId: number): Observable<{ initPoint: string; sessionId: string }> {
+        return this.http.post<{ initPoint: string; sessionId: string }>(
+            `${this.API_URL}/Payment/stripe`,
             { planId },
         );
     }
