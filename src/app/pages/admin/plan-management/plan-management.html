@@ -37,7 +37,7 @@
             </p>
           </td>
           <td class="p-6 text-lg font-bold text-slate-800 align-middle">
-            ${{ plan.precio | number:'1.0-0' }}
+            €{{ plan.precio | number:'1.0-0' }}
             <span class="text-sm text-slate-500 font-normal">/ mes</span>
           </td>
           <td class="p-6 text-right align-middle">
@@ -87,7 +87,7 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-zinc-400 mb-1">
-            Precio Mensual ($)
+            Precio Mensual (€)
           </label>
           <div class="relative">
             <input [(ngModel)]="selectedPlan()!.precio" type="number" step="1" min="1" class="input-field w-full pl-8"

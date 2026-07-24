@@ -40,7 +40,7 @@
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-zinc-400 mb-1">Monto ($)</label>
+        <label class="block text-sm font-medium text-zinc-400 mb-1">Monto (€)</label>
         <input type="number" [(ngModel)]="manualCharge.monto" name="monto" readonly
           class="bg-slate-900/50 border border-slate-700 text-yellow-400 font-bold rounded-xl p-3 w-full cursor-not-allowed"
           placeholder="0.00">
@@ -114,7 +114,7 @@
               }
             </div>
           </td>
-          <td class="p-6 text-slate-800">${{ payment.monto }}</td>
+          <td class="p-6 text-slate-800">€{{ payment.monto }}</td>
           <td class="p-6 text-slate-800 text-sm">
             {{ payment.fecha | date:'dd/MM/yyyy HH:mm' }}
           </td>

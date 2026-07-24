@@ -151,7 +151,7 @@ export default class Metricas implements OnInit, AfterViewInit {
                 {
                     label: 'Ingresos Totales',
                     value: this.formatCurrencyShort(this.stats().totalRevenue),
-                    icon: 'fas fa-dollar-sign',
+                    icon: 'fas fa-euro-sign',
                     colorClass: 'text-green-400',
                     borderClass: 'border-green-500',
                     tooltip: 'Suma de todos los pagos aprobados'
@@ -191,19 +191,19 @@ export default class Metricas implements OnInit, AfterViewInit {
     // ✅ FORMATO CORTO PARA MONEDA
     formatCurrencyShort(value: number): string {
         if (value >= 1000000) {
-            return `$${(value / 1000000).toFixed(1)}M`;
+            return `€${(value / 1000000).toFixed(1)}M`;
         }
         if (value >= 1000) {
-            return `$${(value / 1000).toFixed(0)}K`;
+            return `€${(value / 1000).toFixed(0)}K`;
         }
-        return `$${value.toFixed(0)}`;
+        return `€${value.toFixed(0)}`;
     }
 
     // ✅ FORMATO COMPLETO PARA MONEDA
     formatCurrency(value: number): string {
-        return new Intl.NumberFormat('es-AR', {
+        return new Intl.NumberFormat('es-ES', {
             style: 'currency',
-            currency: 'ARS',
+            currency: 'EUR',
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
         }).format(value);
